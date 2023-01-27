@@ -1,13 +1,7 @@
 #ifndef __ISO_MEMORY_H__
 #define __ISO_MEMORY_H__
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
+#include "iso_includes.h"
 #include "iso_defines.h"
 #include "iso_log.h"
 
