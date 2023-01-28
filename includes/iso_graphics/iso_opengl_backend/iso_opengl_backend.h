@@ -7,7 +7,6 @@
 #include "iso_window/iso_window.h"
 #include "iso_math.h"
 
-
 /*
  * @brief Function to initialize opengl backend
  * @param window = Pointer to the iso_window
@@ -53,17 +52,35 @@ static void iso_gl_clear_window(iso_window* window, iso_color color) {
 /*
  * @brief Function to convert iso_buffer_usage to glEnum
  * @param usage = Iso buffer usage type
+ * @return Returns opengl buffer usage enum
  */
 
 static i32 iso_gl_buffer_usage_to_gl_enum(iso_graphics_buffer_usage_type usage) {
 	i32 mode = GL_STATIC_DRAW;
 	switch (usage) {
-		case ISO_GRAPHICS_STREAM:  mode = GL_STREAM_DRAW;  break;
-		case ISO_GRAPHICS_STATIC:  mode = GL_STATIC_DRAW;  break;
+		case ISO_GRAPHICS_STREAM : mode = GL_STREAM_DRAW ; break;
+		case ISO_GRAPHICS_STATIC : mode = GL_STATIC_DRAW ; break;
 		case ISO_GRAPHICS_DYNAMIC: mode = GL_DYNAMIC_DRAW; break;
 		default: iso_assert(0, "Unknown ISO_GRAPHICS_BUFFER_USAGE: %d\n", usage); break;
 	}
 	return mode;
+}
+
+/*
+ * @brief Function to convert iso_graphics_data_type to gl_types
+ * @param type = iso data type
+ * @return Returns opengl data type
+ */
+
+static i32 iso_graphics_type_to_gl_type(iso_graphics_data_type type) {
+	i32 t = GL_FLOAT;
+	switch (type) {
+		case ISO_GRAPHICS_FLOAT       : t = GL_FLOAT       ; break;
+		case ISO_GRAPHICS_INT         : t = GL_INT         ; break;
+		case ISO_GRAPHICS_UNSIGNED_INT: t = GL_UNSIGNED_INT; break;
+		default: iso_assert(0, "Unknown ISO_GRAPHICS_DATA_TYPE: %d\n", type); break;
+	}
+	return t;
 }
 
 /*=========================
@@ -95,6 +112,7 @@ static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphi
 	if (mode == GL_STATIC_DRAW && !def.data) {
 		iso_assert(0, "Data for vertex buffer cant stay NULL for ISO_GRAPHICS_STATIC usage.\n");
 	}
+
 	GLCall(glBufferData(GL_ARRAY_BUFFER, def.size, def.data, mode));
 
 	// Saving the graphics memory
@@ -230,6 +248,112 @@ static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphi
 	return shader;
 }
 
+static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* graphics, iso_graphics_render_pipeline_def def) {
+	iso_graphics_render_pipeline* pip = iso_alloc(sizeof(iso_graphics_render_pipeline));
+
+	iso_assert(strlen(def.name), "Name of render pipeline is not defined.\n");
+
+	// Initializing data
+	pip->id = 0;
+	pip->name = iso_alloc(strlen(def.name));
+	strcpy(pip->name, def.name);
+
+	// Setting buffers
+	iso_assert(def.buffers.vbo, "Vertex buffer is not given to render pipeline: %s\n", pip->name);
+	iso_assert(def.buffers.ibo, "Index buffer is not given to render pipeline: %s\n", pip->name);
+	iso_assert(def.buffers.shader, "Shader is not given to render pipeline: %s\n", pip->name);
+
+	pip->buffers.vbo    = def.buffers.vbo;
+	pip->buffers.ibo    = def.buffers.ibo;
+	pip->buffers.shader = def.buffers.shader;
+
+	// Creating vertex array object
+	GLCall(glGenVertexArrays(1, &pip->id));
+	GLCall(glBindVertexArray(pip->id));
+
+	// Calculating stride
+	size_t stride = 0;
+	for (i32 i = 0; i < def.amt; i++) {
+		iso_graphics_vertex_layout_def layout = def.layout[i];
+		stride = layout.amt * iso_graphics_get_type_size(layout.type);
+	}
+
+	// Generating layout
+	size_t offset = 0;
+	for (i32 i = 0; i < def.amt; i++) {
+		iso_graphics_vertex_layout_def layout = def.layout[i];
+
+		GLCall(glEnableVertexAttribArray(i));
+		GLCall(glVertexAttribPointer(i, layout.amt, iso_graphics_type_to_gl_type(layout.type), GL_FALSE, stride, (const void*) offset));
+
+		// Calculating offsets
+		offset += layout.amt * iso_graphics_get_type_size(layout.type);
+	}
+
+	// Saving in graphics memory
+	iso_hmap_add(graphics->render_pipelines, pip->name, pip);
+
+	return pip;
+}
+
+/*=========================
+ * Buffer updates
+ *=======================*/
+
+static void iso_gl_render_pipeline_flush(iso_graphics* graphics, char* name, i32 indices_cnt) {
+	iso_graphics_render_pipeline* pip;
+	iso_hmap_get(graphics->render_pipelines, name, pip);
+
+	// Binding all buffers
+	graphics->api.vertex_buffer_bind(graphics, pip->buffers.vbo->name);
+	graphics->api.index_buffer_bind(graphics, pip->buffers.ibo->name);
+	graphics->api.shader_bind(graphics, pip->buffers.shader->name);
+
+	// Draw call
+	GLCall(glBindVertexArray(pip->id));
+	GLCall(glDrawElements(GL_TRIANGLES, indices_cnt, GL_UNSIGNED_INT, NULL));
+}
+
+/*=========================
+ * Buffer binds
+ *=======================*/
+
+/*
+ * @brief Function to bind vertex buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the vertex buffer
+ */
+
+static void iso_gl_vertex_buffer_bind(iso_graphics* graphics, char* name) {
+	iso_graphics_vertex_buffer* vbo;
+	iso_hmap_get(graphics->vertex_buffers, name, vbo);
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo->id));
+}
+
+/*
+ * @brief Function to bind index buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the index buffer
+ */
+
+static void iso_gl_index_buffer_bind(iso_graphics* graphics, char* name) {
+	iso_graphics_index_buffer* ibo;
+	iso_hmap_get(graphics->index_buffers, name, ibo);
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo->id));
+}
+
+/*
+ * @brief Function to bind shader
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the shader
+ */
+
+static void iso_gl_shader_bind(iso_graphics* graphics, char* name) {
+	iso_graphics_shader* shader;
+	iso_hmap_get(graphics->shaders, name, shader);
+	GLCall(glUseProgram(shader->id));
+}
+
 /*=========================
  * Buffer destruction
  *=======================*/
@@ -283,6 +407,23 @@ static void iso_gl_shader_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->shaders, name);
 	iso_free(shader->name);
 	iso_free(shader);
+}
+
+/*
+ * @brief Function to delete opengl render pipeline
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the render pipeline
+ */
+
+static void iso_gl_render_pipeline_delete(iso_graphics* graphics, char* name) {
+	iso_graphics_render_pipeline* pip;
+	iso_hmap_get(graphics->render_pipelines, name, pip);
+
+	GLCall(glDeleteVertexArrays(1, &pip->id));
+	
+	iso_hmap_remove(graphics->render_pipelines, name);
+	iso_free(pip->name);
+	iso_free(pip);
 }
 
 #endif // __ISO_OPENGL_BACKEND_H__

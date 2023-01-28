@@ -10,7 +10,7 @@ window:
 	./out
 
 gl:
-	$(CC) $(INC) -c opengl_test.c
+	$(CC) $(INC) -c opengl_tri_test.c
 	$(CC) -o out $(OBJ) $(LIB)
 	rm $(OBJ)
 	./out

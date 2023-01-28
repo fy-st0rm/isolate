@@ -17,6 +17,17 @@ static char* fragment_shader = "#version 460 core\n"
 "    color = vec4(1, 0, 0, 1);\n"
 "};\n";
 
+// Triangle points and indices
+static f32 vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f
+};
+
+static u32 indices[] = {
+	0, 1, 2
+};
+
 
 iso_app_def iso_init() {
 	iso_window_def window_def = {
@@ -36,17 +47,6 @@ iso_app_def iso_init() {
 }
 
 void iso_start(iso_app* app) {
-	// Triangle points and indices
-	f32 vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.0f,  0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f
-	};
-
-	u32 indices[] = {
-		0, 1, 2
-	};
-
 	// Vertex buffer
 	iso_graphics_vertex_buffer_def vbd = {
 		.name  = "vbo",
@@ -77,9 +77,23 @@ void iso_start(iso_app* app) {
 
 	iso_graphics_shader* shader = app->graphics->api.shader_new(app->graphics, shader_def);
 
-	printf("VBO: %d\n", vbo->id);
-	printf("IBO: %d\n", ibo->id);
-	printf("Shader: %d\n", shader->id);
+	// Render pipeline
+	iso_graphics_render_pipeline_def pipeline_def = {
+		.name = "pip",
+
+		.buffers = {
+			.vbo = vbo,
+			.ibo = ibo,
+			.shader = shader
+		},
+
+		.layout = (iso_graphics_vertex_layout_def[]) {
+			{ .amt = 3, .type = ISO_GRAPHICS_FLOAT }
+		},
+		.amt = 1
+	};
+
+	iso_graphics_render_pipeline* pip = app->graphics->api.render_pipeline_new(app->graphics, pipeline_def);
 }
 
 void iso_event(iso_app* app, SDL_Event event) {
@@ -90,11 +104,12 @@ void iso_event(iso_app* app, SDL_Event event) {
 
 void iso_update(iso_app* app, f32 dt) {
 	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0.5, 0.5, 1 });
-	//GLCall(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, NULL));
+	app->graphics->api.render_pipeline_flush(app->graphics, "pip", 3);
 }
 
 void iso_exit(iso_app* app) {
 	app->graphics->api.vertex_buffer_delete(app->graphics, "vbo");
 	app->graphics->api.index_buffer_delete(app->graphics, "ibo");
 	app->graphics->api.shader_delete(app->graphics, "shader");
+	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
 }
