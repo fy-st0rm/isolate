@@ -147,11 +147,20 @@ static i64 __iso_hash_data(char* data) {
 \
 		/* Searching for the key in the following index */\
 		hmap->tmp_entry = &hmap->data[idx];\
+		hmap->tmp_key = _k;\
 		while ((*hmap->tmp_entry) != NULL) {\
-			if (_k == (*hmap->tmp_entry)->key) {\
-				res = 1;\
-				entry = *hmap->tmp_entry;\
-				break;\
+			if (ISO_IS_POINTER(hmap->tmp_key)) {\
+				if (strcmp(_k, (*hmap->tmp_entry)->key) == 0) {\
+					res = 1;\
+					entry = *hmap->tmp_entry;\
+					break;\
+				}\
+			} else {\
+				if (_k == (*hmap->tmp_entry)->key) {\
+					res = 1;\
+					entry = *hmap->tmp_entry;\
+					break;\
+				}\
 			}\
 			hmap->tmp_entry = &(*hmap->tmp_entry)->next;\
 		}\
@@ -177,8 +186,8 @@ static i64 __iso_hash_data(char* data) {
 	do {\
 		b8 res;\
 		iso_hmap_search(hmap, _k, res, *hmap->tmp_entry);\
-		value = (*hmap->tmp_entry)->val;\
 		iso_assert(res, "The searched key doesn`t exists in hashmap.\n");\
+		value = (*hmap->tmp_entry)->val;\
 	} while (0)
 
 /*

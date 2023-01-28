@@ -10,5 +10,6 @@
 
 // Graphics library (SDL and OPENGL)
 #include <SDL2/SDL.h>
+#include <GL/glew.h>
 
 #endif // __ISO_INCLUDES_H__

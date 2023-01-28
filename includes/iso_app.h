@@ -50,8 +50,13 @@ typedef struct {
 static iso_app* iso_app_new(iso_app_def app_def) {
 	iso_app* app = iso_alloc(sizeof(iso_app));
 
-	// TODO: Creating iso_window and iso_graphics
+	// Creating iso_window
+	app_def.window_def.flags |= app_def.graphics_def.api;
 	app->window = iso_window_new(app_def.window_def);
+
+	// Creating iso_graphics
+	app->graphics = iso_graphics_new(app_def.graphics_def);
+	app->graphics->api.init(app->window);
 
 	// Initializing the app state
 	app->state = ISO_APP_RUNNING;
@@ -67,8 +72,9 @@ static iso_app* iso_app_new(iso_app_def app_def) {
  */
 
 static void iso_app_delete(iso_app* app) {
-	// TODO: Deleting iso_window and iso_graphics
+	// Deleting iso_window and iso_graphics
 	iso_window_delete(app->window);
+	iso_graphics_delete(app->graphics);
 
 	iso_free(app);
 }

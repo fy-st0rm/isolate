@@ -37,7 +37,7 @@ void iso_update(iso_app* app, f32 dt);
  * @brief Function that will be called at the end of the app
  */
 
-void iso_exit();
+void iso_exit(iso_app* app);
 
 /*
  * @brief Program entry point of the program
@@ -85,10 +85,13 @@ int main(int argc, char** argv) {
 
 		// Calculating delta time
 		dt = SDL_GetTicks() - start_tick;
+
+		// Updating the graphics
+		app->graphics->api.update(app->window);
 	}
 
 	// Exit of the app
-	iso_exit();
+	iso_exit(app);
 
 	// Cleaning app
 	iso_app_delete(app);
@@ -96,5 +99,6 @@ int main(int argc, char** argv) {
 	// Alerting incase of memory leaks
 	iso_memory_alert();
 }
+
 
 #endif //__ISO_ENTRY_H__

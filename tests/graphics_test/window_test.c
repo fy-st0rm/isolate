@@ -1,15 +1,14 @@
-#include "iso.h"
+#include "isolate.h"
 
 iso_app_def iso_init() {
 	iso_window_def window_def = {
 		.title  = "Window",
 		.width  = 800,
-		.height = 600
+		.height = 600,
 	};
 
 	iso_graphics_def graphics_def = {
 		.api = ISO_OPENGL_API,
-		.renderer_amt = 1
 	};
 
 	return (iso_app_def) {
@@ -29,7 +28,8 @@ void iso_event(iso_app* app, SDL_Event event) {
 }
 
 void iso_update(iso_app* app, f32 dt) {
+	app->graphics->api.clear_window(app->window, (iso_color) { 0.5, 0.5, 0.5, 1 });
 }
 
-void iso_exit() {
+void iso_exit(iso_app* app) {
 }
