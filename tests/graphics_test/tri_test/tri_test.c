@@ -12,22 +12,13 @@ static char* vertex_shader = "#version 460 core\n"
 static char* fragment_shader = "#version 460 core\n"
 "layout(location = 0) out vec4 color;\n"
 "\n"
+"uniform vec4 col;\n"
 "void main()\n"
 "{\n"
-"    color = vec4(1, 0, 0, 1);\n"
+"    color = col;\n"
 "};\n";
 
-// Triangle points and indices
-static f32 vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f
-};
-
-static u32 indices[] = {
-	0, 1, 2
-};
-
+static iso_color color;
 
 iso_app_def iso_init() {
 	iso_window_def window_def = {
@@ -47,6 +38,17 @@ iso_app_def iso_init() {
 }
 
 void iso_start(iso_app* app) {
+	// Triangle points and indices
+	f32 vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		 0.0f,  0.5f, 0.0f,
+		 0.5f, -0.5f, 0.0f
+	};
+	
+	u32 indices[] = {
+		0, 1, 2
+	};
+
 	// Vertex buffer
 	iso_graphics_vertex_buffer_def vbd = {
 		.name  = "vbo",
@@ -104,7 +106,28 @@ void iso_event(iso_app* app, SDL_Event event) {
 
 void iso_update(iso_app* app, f32 dt) {
 	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0.5, 0.5, 1 });
-	app->graphics->api.render_pipeline_flush(app->graphics, "pip", 3);
+
+	// Rendering
+	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
+
+	color.r += 0.001f;
+	color.g = 1;
+	color.b += 0.001f;
+	color.a = 1.0f;
+
+	if (color.r > 1.0f) color.r = 0.0f;
+	if (color.g > 1.0f) color.g = 0.0f;
+	if (color.b > 1.0f) color.b = 0.0f;
+
+	// Sending the uniform
+	app->graphics->api.uniform_set(app->graphics, (iso_graphics_uniform_def) {
+				.name   = "col",
+				.shader = app->graphics->memory.get_shader(app->graphics, "shader"),
+				.data   = &color,
+				.type   = ISO_GRAPHICS_UNIFORM_VEC4
+			});
+	
+	app->graphics->api.render_pipeline_end(app->graphics, "pip", 3);
 }
 
 void iso_exit(iso_app* app) {

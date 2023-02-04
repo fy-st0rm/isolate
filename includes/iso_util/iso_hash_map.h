@@ -46,15 +46,16 @@
 
 #define iso_hmap_delete(hmap)\
 	do {\
-		if (hmap == NULL) return;\
-		for (i32 i = 0; i < iso_hmap_size(hmap); i++) {\
-			while (hmap->data[i] != NULL) {\
-				void* ptr = hmap->data[i];\
-				hmap->data[i] = hmap->data[i]->next;\
-				iso_free(ptr);\
+		if (hmap != NULL) {\
+			for (i32 i = 0; i < iso_hmap_size(hmap); i++) {\
+				while (hmap->data[i] != NULL) {\
+					void* ptr = hmap->data[i];\
+					hmap->data[i] = hmap->data[i]->next;\
+					iso_free(ptr);\
+				}\
 			}\
+			iso_free(hmap);\
 		}\
-		iso_free(hmap);\
 	} while (0)
 
 /*

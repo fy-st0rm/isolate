@@ -55,8 +55,10 @@ static void* __iso_sdl_check_ptr(void* res, const char* file, i32 line) {
  */
 
 #define GLCall(x)\
-	clear_gl_error(); \
-	x;\
+	(\
+		clear_gl_error(), \
+		x\
+	);\
 	iso_assert(gl_error_log(#x, __FILE__, __LINE__), "Opengl failed.\n");\
 
 static void clear_gl_error()
@@ -70,6 +72,7 @@ static bool gl_error_log(const char* function, const char* file, int line)
 	while (error = glGetError())
 	{
 		fprintf(stderr, "[Error code]: %d\n", error);
+		fprintf(stderr, "[Error message]: %s\n", gluErrorString(error));
 		fprintf(stderr, "[Opengl error]: %s %s: %d\n", function ,file, line);
 		return false;
 	}

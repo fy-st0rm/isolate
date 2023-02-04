@@ -1,16 +1,23 @@
 CC = gcc
 INC = -I../../includes/
 OBJ = *.o
-LIB = -lSDL2main -lSDL2 -lGL -lGLU -lGLEW
+LIB = -lSDL2main -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW
 
 window:
-	$(CC) $(INC) -c window_test.c
-	$(CC) -o out $(OBJ) $(LIB)
+	$(CC) $(INC) -c window_test/window_test.c
+	$(CC) -o window_test/out $(OBJ) $(LIB)
 	rm $(OBJ)
-	./out
+	./window_test/out
 
-gl:
-	$(CC) $(INC) -c opengl_tri_test.c
-	$(CC) -o out $(OBJ) $(LIB)
+tri:
+	$(CC) $(INC) -c tri_test/tri_test.c
+	$(CC) -o tri_test/out $(OBJ) $(LIB)
 	rm $(OBJ)
-	./out
+	./tri_test/out
+
+tex:
+	$(CC) $(INC) -c texture_test/texture_test.c
+	$(CC) -o texture_test/out $(OBJ) $(LIB)
+	rm $(OBJ)
+	./texture_test/out
+

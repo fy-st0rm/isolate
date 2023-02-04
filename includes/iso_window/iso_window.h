@@ -70,6 +70,7 @@ static iso_window* iso_window_new(iso_window_def window_def) {
 
 	// Initializing sdl
 	iso_sdl_check(SDL_Init(SDL_INIT_EVERYTHING));
+	iso_sdl_check(IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG));
 
 	// Copying the window data
 	window->title = iso_alloc(strlen(window_def.title));
@@ -81,6 +82,10 @@ static iso_window* iso_window_new(iso_window_def window_def) {
 	// Creating sdl window and renderer
 	window->sdl_window   = iso_sdl_check_ptr(SDL_CreateWindow(window_def.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_def.width, window_def.height, window_def.flags));
 	window->sdl_renderer = iso_sdl_check_ptr(SDL_CreateRenderer(window->sdl_window, -1, SDL_RENDERER_ACCELERATED));
+
+	// Setting up alpha channels and blendings
+	GLCall(glEnable(GL_BLEND));
+	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 	return window;
 }
@@ -100,6 +105,7 @@ static void iso_window_delete(iso_window* window) {
 	iso_free(window);
 
 	// Quiting sdl
+	IMG_Quit();
 	SDL_Quit();
 }
 

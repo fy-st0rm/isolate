@@ -83,6 +83,22 @@ static i32 iso_graphics_type_to_gl_type(iso_graphics_data_type type) {
 	return t;
 }
 
+/*
+ * @brief Function to convert iso_graphics_filter to gl_filters
+ * @param filter = iso_graphics_filter
+ * @return Returns opengl filter
+ */
+
+static i32 iso_graphics_filter_to_gl_filter(iso_graphics_filter filter) {
+	i32 gl_f;
+	switch (filter) {
+		case ISO_GRAPHICS_FILTER_LINEAR : gl_f = GL_LINEAR ; break;
+		case ISO_GRAPHICS_FILTER_NEAREST: gl_f = GL_NEAREST; break;
+		default: iso_assert(0, "Unknown ISO_GRAPHICS_FILTER: %d\n", filter); break;
+	}
+	return gl_f;
+}
+
 /*=========================
  * Buffer constructions
  *=======================*/
@@ -248,6 +264,13 @@ static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphi
 	return shader;
 }
 
+/*
+ * @brief Function to create opengl render pipleline according to its definition
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = Render pipeline definition
+ * @return Returns pointer to the iso_graphics_render_pipeline
+ */
+
 static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* graphics, iso_graphics_render_pipeline_def def) {
 	iso_graphics_render_pipeline* pip = iso_alloc(sizeof(iso_graphics_render_pipeline));
 
@@ -275,7 +298,7 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 	size_t stride = 0;
 	for (i32 i = 0; i < def.amt; i++) {
 		iso_graphics_vertex_layout_def layout = def.layout[i];
-		stride = layout.amt * iso_graphics_get_type_size(layout.type);
+		stride += layout.amt * iso_graphics_get_type_size(layout.type);
 	}
 
 	// Generating layout
@@ -296,11 +319,186 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 	return pip;
 }
 
+/*
+ * @brief Function to flip SDL_Surface
+ * @param surface = Pointer to the SDL_Surface
+ */
+
+static void iso_gl_flip_surface(SDL_Surface* surface)  {
+	SDL_LockSurface(surface);
+	
+	i32 pitch = surface->pitch; // row size
+	char temp[pitch];
+	char* pixels = (char*) surface->pixels;
+	
+	for(i32 i = 0; i < surface->h / 2; ++i) {
+		// get pointers to the two rows to swap
+		char* row1 = pixels + i * pitch;
+		char* row2 = pixels + (surface->h - i - 1) * pitch;
+		
+		// swap rows
+		memcpy(temp, row1, pitch);
+		memcpy(row1, row2, pitch);
+		memcpy(row2, temp, pitch);
+	}
+	SDL_UnlockSurface(surface);
+}
+
+/*
+ * @brief Function to get the opengl image format from SDL_Surface
+ * @param surface = Pointer to the SDL_Surface
+ * @return Returns for format as u32
+ */
+
+static u32 iso_gl_get_color_format(SDL_Surface* surface) {
+	u32 colors = surface->format->BytesPerPixel;
+	u32 format;
+
+	if (colors == 4) {   // alpha
+		if (surface->format->Rmask == 0x000000ff)
+			format = GL_RGBA;
+		else
+			format = GL_BGRA;
+	} else {             // no alpha
+		if (surface->format->Rmask == 0x000000ff)
+			format = GL_RGB;
+		else
+			format = GL_BGR;
+	}
+	return format;
+}
+
+/*
+ * @brief Packs the surface and makes the pitch same as width (reference: https://discourse.libsdl.org/t/sdl-ttf-2-0-18-surface-to-opengl-texture-not-consistent-with-ttf-2-0-15/34529/5)
+ * @param surface = Pointer to SDL_Surface
+ */
+
+static void iso_gl_pack_surface(SDL_Surface* surface) {
+	i32 i;
+	u32 len = surface->w * surface->format->BytesPerPixel;
+	u8 *src = (Uint8*) surface->pixels;
+	u8 *dst = (Uint8*) surface->pixels;
+	for (i = 0; i < surface->h; i++) {
+		SDL_memmove(dst, src, len);
+		dst += len; 
+		src += surface->pitch;
+	}
+	surface->pitch = len;
+}
+
+/*
+ * @brief Function to create new opengl texture
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = iso_graphics_texture_def struct
+ * @return Returns the pointer to the iso_graphics_texture
+ */
+
+static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_graphics_texture_def def) {
+	iso_graphics_texture* texture = iso_alloc(sizeof(iso_graphics_texture));
+
+	// Loading image using sdl_image
+	SDL_Surface* surface = iso_sdl_check_ptr(IMG_Load(def.file_path));
+	iso_gl_flip_surface(surface);
+	iso_gl_pack_surface(surface);
+	u32 format = iso_gl_get_color_format(surface);
+
+	// Initialize data
+	iso_assert(strlen(def.name), "Name of texture is not defined.\n");
+
+	// Initializing data
+	texture->id = 0;
+	texture->width  = surface->w;
+	texture->height = surface->h;
+	texture->name = iso_alloc(strlen(def.name));
+	strcpy(texture->name, def.name);
+
+	// Binding the texture
+	GLCall(glGenTextures(1, &texture->id));
+	GLCall(glBindTexture(GL_TEXTURE_2D, texture->id));
+	
+	// Setting up some basic modes to display texture
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, iso_graphics_filter_to_gl_filter(def.filter.min)));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, iso_graphics_filter_to_gl_filter(def.filter.mag)));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	
+	// Sending the pixel data to opengl
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, format, GL_UNSIGNED_BYTE, surface->pixels));
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+	
+	SDL_FreeSurface(surface);
+
+	// Saving in graphics memory
+	iso_hmap_add(graphics->textures, texture->name, texture);
+
+	return texture;
+}
+
 /*=========================
  * Buffer updates
  *=======================*/
 
-static void iso_gl_render_pipeline_flush(iso_graphics* graphics, char* name, i32 indices_cnt) {
+/*
+ * @brief Function to update opengl vertex buffer data
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the vertex buffer
+ * @param def      = iso_graphics_buffer_update_def struct
+ */
+
+static void iso_gl_vertex_buffer_update(iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def) {
+	iso_graphics_vertex_buffer* vbo;
+	iso_hmap_get(graphics->vertex_buffers, name, vbo);
+
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo->id));
+	GLCall(glBufferSubData(GL_ARRAY_BUFFER, def.start_sz, def.end_sz, def.data));
+}
+
+/*
+ * @brief Function to set the opengl uniform
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = iso_graphics_unform_def struct
+ */
+
+static void iso_gl_uniform_set(iso_graphics* graphics, iso_graphics_uniform_def def) {
+	i32 u_loc = GLCall(glGetUniformLocation(def.shader->id, def.name));
+	iso_assert(u_loc != -1, "`%s` uniform not found in shader `%s`.\n", def.name, def.shader->name);
+
+	switch (def.type) {
+		case ISO_GRAPHICS_UNIFORM_INT:
+			GLCall(glUniform1i(u_loc, *((int*) def.data)));
+			break;
+		case ISO_GRAPHICS_UNIFORM_FLOAT:
+			GLCall(glUniform1f(u_loc, *((float*) def.data)));
+			break;
+		case ISO_GRAPHICS_UNIFORM_VEC2:
+			GLCall(glUniform2fv(u_loc, 1, (iso_vec2*) def.data));
+			break;
+		case ISO_GRAPHICS_UNIFORM_VEC3:
+			GLCall(glUniform3fv(u_loc, 1, (iso_vec3*) def.data));
+			break;
+		case ISO_GRAPHICS_UNIFORM_VEC4:
+			GLCall(glUniform4fv(u_loc, 1, (iso_vec4*) def.data));
+			break;
+		case ISO_GRAPHICS_UNIFORM_MAT4:
+			GLCall(glUniformMatrix4fv(u_loc, 1, GL_FALSE, &((iso_mat4*) def.data)->m[0][0]));
+			break;
+		case ISO_GRAPHICS_UNIFORM_SAMPLER2D:
+			iso_graphics_sampler_def* sampler = def.data;
+			GLCall(glUniform1iv(u_loc, sampler->count, sampler->samplers));
+			break;
+		default:
+			iso_assert(false, "Unknown ISO_GRAPHICS_UNIFORM_TYPE: %d\n", def.type);
+			break;
+	}
+}
+
+/*
+ * @brief Function to bind all the buffers to prepare for rendering
+ * @param graphics    = Pointer to the iso_graphics
+ * @param name        = Name of the render_pipeline
+ */
+
+static void iso_gl_render_pipeline_begin(iso_graphics* graphics, char* name) {
 	iso_graphics_render_pipeline* pip;
 	iso_hmap_get(graphics->render_pipelines, name, pip);
 
@@ -308,6 +506,18 @@ static void iso_gl_render_pipeline_flush(iso_graphics* graphics, char* name, i32
 	graphics->api.vertex_buffer_bind(graphics, pip->buffers.vbo->name);
 	graphics->api.index_buffer_bind(graphics, pip->buffers.ibo->name);
 	graphics->api.shader_bind(graphics, pip->buffers.shader->name);
+}
+
+/*
+ * @brief Function to flush the opengl buffer with a draw call.
+ * @param graphics    = Pointer to the iso_graphics
+ * @param name        = Name of the render_pipeline
+ * @param indices_cnt = Number of indices to render
+ */
+
+static void iso_gl_render_pipeline_end(iso_graphics* graphics, char* name, i32 indices_cnt) {
+	iso_graphics_render_pipeline* pip;
+	iso_hmap_get(graphics->render_pipelines, name, pip);
 
 	// Draw call
 	GLCall(glBindVertexArray(pip->id));
@@ -352,6 +562,18 @@ static void iso_gl_shader_bind(iso_graphics* graphics, char* name) {
 	iso_graphics_shader* shader;
 	iso_hmap_get(graphics->shaders, name, shader);
 	GLCall(glUseProgram(shader->id));
+}
+
+/*
+ * @brief Function to bind texture
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the texture
+ */
+
+static void iso_gl_texture_bind(iso_graphics* graphics, char* name) {
+	iso_graphics_texture* texture;
+	iso_hmap_get(graphics->textures, name, texture);
+	GLCall(glBindTextureUnit(texture->id, texture->id));
 }
 
 /*=========================
@@ -424,6 +646,23 @@ static void iso_gl_render_pipeline_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->render_pipelines, name);
 	iso_free(pip->name);
 	iso_free(pip);
+}
+
+/*
+ * @brief Function to delete opengl texture
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the texture
+ */
+
+static void iso_gl_texture_delete(iso_graphics* graphics, char* name) {
+	iso_graphics_texture* texture;
+	iso_hmap_get(graphics->textures, name, texture);
+
+	GLCall(glDeleteTextures(1, &texture->id));
+
+	iso_hmap_remove(graphics->textures, name);
+	iso_free(texture->name);
+	iso_free(texture);
 }
 
 #endif // __ISO_OPENGL_BACKEND_H__
