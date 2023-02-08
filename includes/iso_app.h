@@ -4,6 +4,7 @@
 #include "iso_window/iso_window.h"
 #include "iso_graphics/iso_graphics.h"
 #include "iso_util/iso_memory.h"
+#include "iso_camera/iso_camera.h"
 
 /*
  * @brief Enum that holds the state of the app.
@@ -29,14 +30,16 @@ typedef struct {
 
 /*
  * @brief Structure of the app.
- * @mem window   = Pointer to the iso_window.
- * @mem graphics = Pointer to the iso_graphics.
- * @mem fps      = Max fps of the app.
+ * @mem window     = Pointer to the iso_window.
+ * @mem graphics   = Pointer to the iso_graphics.
+ * @mem camera_man = Pointer to the iso_camera_manager.
+ * @mem fps        = Max fps of the app.
  */
 
 typedef struct {
-	iso_window*   window;
-	iso_graphics* graphics;
+	iso_window*         window;
+	iso_graphics*       graphics;
+	iso_camera_manager* camera_man;
 	iso_app_state state;
 	f32 fps;
 } iso_app;
@@ -58,6 +61,9 @@ static iso_app* iso_app_new(iso_app_def app_def) {
 	app->graphics = iso_graphics_new(app_def.graphics_def);
 	app->graphics->api.init(app->window);
 
+	// Creating iso_camera_manager
+	app->camera_man = iso_camera_manager_new();
+
 	// Initializing the app state
 	app->state = ISO_APP_RUNNING;
 
@@ -72,9 +78,10 @@ static iso_app* iso_app_new(iso_app_def app_def) {
  */
 
 static void iso_app_delete(iso_app* app) {
-	// Deleting iso_window and iso_graphics
+	// Cleaning memory
 	iso_window_delete(app->window);
 	iso_graphics_delete(app->graphics);
+	iso_camera_manager_delete(app->camera_man);
 
 	iso_free(app);
 }

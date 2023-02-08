@@ -83,10 +83,6 @@ static iso_window* iso_window_new(iso_window_def window_def) {
 	window->sdl_window   = iso_sdl_check_ptr(SDL_CreateWindow(window_def.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_def.width, window_def.height, window_def.flags));
 	window->sdl_renderer = iso_sdl_check_ptr(SDL_CreateRenderer(window->sdl_window, -1, SDL_RENDERER_ACCELERATED));
 
-	// Setting up alpha channels and blendings
-	GLCall(glEnable(GL_BLEND));
-	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
 	return window;
 }
 

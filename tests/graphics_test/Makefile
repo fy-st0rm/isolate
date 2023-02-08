@@ -1,7 +1,7 @@
 CC = gcc
 INC = -I../../includes/
 OBJ = *.o
-LIB = -lSDL2main -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW
+LIB = -lSDL2main -lSDL2 -lSDL2_image -lGL -lGLU -lGLEW -lm
 
 window:
 	$(CC) $(INC) -c window_test/window_test.c
@@ -20,4 +20,10 @@ tex:
 	$(CC) -o texture_test/out $(OBJ) $(LIB)
 	rm $(OBJ)
 	./texture_test/out
+
+cam:
+	$(CC) $(INC) -c cam_test/cam_test.c
+	$(CC) -o cam_test/out $(OBJ) $(LIB)
+	rm $(OBJ)
+	./cam_test/out
 

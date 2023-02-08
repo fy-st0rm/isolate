@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
+#include <math.h>
 
 // Graphics library (SDL and OPENGL)
 #include <SDL2/SDL.h>

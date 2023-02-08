@@ -4,6 +4,7 @@
 #include "iso_util/iso_includes.h"
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_log.h"
+#include "iso_util/iso_file.h"
 #include "iso_window/iso_window.h"
 #include "iso_math.h"
 
@@ -230,6 +231,24 @@ static u32 iso_gl_shader_new_from_str(char* v_src, char* f_src) {
 }
 
 /*
+ * @brief Function to create a shader from file
+ * @param v_path = Vertex shader file path
+ * @param f_path = Fragment shader file path
+ * @return Returns the shader program
+ */
+
+static u32 iso_gl_shader_new_from_file(char* v_path, char* f_path) {
+	iso_file* v_file = iso_file_read(v_path);
+	iso_file* f_file = iso_file_read(f_path);
+
+	u32 program = iso_gl_shader_new_from_str(v_file->data, f_file->data);
+
+	iso_file_close(v_file);
+	iso_file_close(f_file);
+	return program;
+}
+
+/*
  * @brief Function to create opengl shader according to the shader defination
  * @param graphics = Pointer to the iso_graphics
  * @param def      = Shader program defination
@@ -251,7 +270,7 @@ static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphi
 			shader->id = iso_gl_shader_new_from_str(def.v_src, def.f_src);
 			break;
 		case ISO_SHADER_FROM_FILE:
-			iso_assert(0, "ISO_SHADER_FROM_FILE hasnt been implemented yet.\n");
+			shader->id = iso_gl_shader_new_from_file(def.v_src, def.f_src);
 			break;
 		default:
 			iso_assert(0, "Invalid shader source type: %d\n", def.source_type);
