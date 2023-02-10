@@ -6,12 +6,7 @@
 #define X (800 / 2 - W / 2)
 #define Y (600 / 2 - H / 2)
 
-static f32 vertices[] = {
-	X,     Y,     1.0F, 0.0F, 0.0F, 1.0F, 1.0F,
-	X,     Y + H, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F,
-	X + W, Y + H, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F,
-	X + W, Y,     1.0F, 1.0F, 0.0F, 1.0F, 1.0F
-};
+#define VERTEX_BUFFER_SIZE sizeof(f32) * 4 * 7
 
 static u32 indices[] = {
 	0, 1, 2,
@@ -39,7 +34,7 @@ void iso_start(iso_app* app) {
 		(iso_graphics_vertex_buffer_def) {
 			.name  = "vbo",
 			.data  = NULL,
-			.size  = sizeof(vertices),
+			.size  = VERTEX_BUFFER_SIZE,
 			.usage = ISO_GRAPHICS_DYNAMIC
 		}
 	);
@@ -146,10 +141,30 @@ void iso_event(iso_app* app, SDL_Event event) {
 	}
 }
 
+f32 ang = 0.0f;
 void iso_update(iso_app* app, f32 dt) {
 	app->graphics->api.clear_window(app->window, (iso_color) { 0.3, 0.3, 0.3, 1 });
 
 	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
+
+	iso_mat4 rot = iso_rotate_z(ang);
+	iso_vec3 bottom_left  = { X,     Y,     1.0f };
+	iso_vec3 top_left     = { X,     Y + H, 1.0f };
+	iso_vec3 top_right    = { X + W, Y + H, 1.0f };
+	iso_vec3 bottom_right = { X + W, Y,     1.0f };
+
+	bottom_left  = iso_mat4_mul_vec3(rot, bottom_left);
+	top_left     = iso_mat4_mul_vec3(rot, top_left);
+	top_right    = iso_mat4_mul_vec3(rot, top_right);
+	bottom_right = iso_mat4_mul_vec3(rot, bottom_right);
+	ang += 0.001f;
+
+	f32 vertices[] = {
+		bottom_left.x, bottom_left.y, bottom_left.z, 0.0f, 0.0f, 1.0f, 1.0f,
+		top_left.x, top_left.y, top_left.z, 0.0f, 1.0f, 1.0f, 1.0f,
+		top_right.x, top_right.y, top_right.z, 1.0f, 1.0f, 1.0f, 1.0f,
+		bottom_right.x, bottom_right.y, bottom_right.z, 1.0f, 0.0f, 1.0f, 1.0f
+	};
 
 	// Updating vertex buffer data
 	app->graphics->api.vertex_buffer_update(

@@ -73,6 +73,20 @@ static iso_mat4 iso_mat4_mul(iso_mat4 m1, iso_mat4 m2) {
 	return out;
 }
 
+static iso_vec3 iso_mat4_mul_vec3(iso_mat4 m, iso_vec3 v) {
+	iso_vec3 out;
+	out.x = v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + m.m[3][0];
+	out.y = v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + m.m[3][1];
+	out.z = v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2] + m.m[3][2];
+	f32 w = v.x * m.m[0][3] + v.y * m.m[1][3] + v.z * m.m[2][3] + m.m[3][3];
+	if (w) {
+		out.x /= w;
+		out.y /= w;
+		out.z /= w;
+	}
+	return out;
+}
+
 static iso_mat4 iso_mat4_identity() {
 	iso_mat4 out;
 	iso_mat4_clear(&out);
