@@ -98,6 +98,8 @@ int main(int argc, char** argv) {
 
 	// Alerting incase of memory leaks
 	iso_memory_alert();
+
+	return 0;
 }
 
 #endif //__ISO_ENTRY_H__

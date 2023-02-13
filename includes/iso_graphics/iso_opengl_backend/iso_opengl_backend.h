@@ -501,10 +501,11 @@ static void iso_gl_uniform_set(iso_graphics* graphics, iso_graphics_uniform_def 
 		case ISO_GRAPHICS_UNIFORM_MAT4:
 			GLCall(glUniformMatrix4fv(u_loc, 1, GL_FALSE, &((iso_mat4*) def.data)->m[0][0]));
 			break;
-		case ISO_GRAPHICS_UNIFORM_SAMPLER2D:
+		case ISO_GRAPHICS_UNIFORM_SAMPLER2D: {
 			iso_graphics_sampler_def* sampler = def.data;
 			GLCall(glUniform1iv(u_loc, sampler->count, sampler->samplers));
 			break;
+		}
 		default:
 			iso_assert(false, "Unknown ISO_GRAPHICS_UNIFORM_TYPE: %d\n", def.type);
 			break;

@@ -1,0 +1,12 @@
+{
+	"platform": "auto",
+	"isolate_path": "",
+
+	"out": "out",
+	"cc": "gcc",
+	"c_flags": [""],
+	"c_files": ["window_test.c"],
+	"includes": [],
+	"lib_path": [],
+	"lib": []
+}

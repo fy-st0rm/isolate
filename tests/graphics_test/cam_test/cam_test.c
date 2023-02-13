@@ -55,8 +55,8 @@ void iso_start(iso_app* app) {
 		app->graphics,
 		(iso_graphics_shader_def) {
 			.name         = "shader",
-			.v_src        = "cam_test/vertex.vs",
-			.f_src        = "cam_test/fragment.fs",
+			.v_src        = "vertex.vs",
+			.f_src        = "fragment.fs",
 			.source_type  = ISO_SHADER_FROM_FILE
 		}
 	);
