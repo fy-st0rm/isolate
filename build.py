@@ -5,6 +5,11 @@ import platform
 
 class Builder:
 	def __init__(self, config):
+		if platform.system().lower() == "windows":
+			self.slash = "{self.slash}"
+		elif platform.system().lower() == "linux":
+			self.slash = "/"
+
 		self.isolate_lib = {
 			"windows": ["mingw32", "SDL2main", "SDL2", "SDL2_image", "m",
 						"glu32", "opengl32", "User32", "Gdi32", "Shell32", "glew32"],
@@ -13,21 +18,21 @@ class Builder:
 		}
 
 		self.isolate_includes = {
-			"windows": ["includes\\", "vendor\\GLEW\\include\\", "vendor\\SDL2_64bit\\include\\"],
-			"linux"  : ["includes\\", "\\usr\\include\\"]
+			"windows": [f"includes{self.slash}", f"vendor{self.slash}GLEW{self.slash}include{self.slash}", f"vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}"],
+			"linux"  : [f"includes{self.slash}", f"{self.slash}usr{self.slash}include{self.slash}"]
 		}
 
 		self.isolate_lib_path = {
-			"windows": ["vendor\\GLEW\\lib\\", "vendor\\SDL2_64bit\\lib\\"],
-			"linux"  : ["\\usr\\lib\\"]
+			"windows": [f"vendor{self.slash}GLEW{self.slash}lib{self.slash}", f"vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}"],
+			"linux"  : [f"{self.slash}usr{self.slash}lib{self.slash}"]
 		}
 
-		self.vendor_dlls = ["vendor\\GLEW\\bin\\", "vendor\\SDL2_64bit\\bin\\"]
+		self.vendor_dlls = [f"vendor{self.slash}GLEW{self.slash}bin{self.slash}", f"vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}"]
 
 		self.load_config(config)
 
 	def load_config(self, config):
-		self.project_dir = os.path.dirname(config) + "\\"
+		self.project_dir = os.path.dirname(config) + self.slash
 		self.config = json.load(open(config, "r"));
 
 		# Loading the data
@@ -38,12 +43,13 @@ class Builder:
 
 		self.isolate_path = self.config["isolate_path"]
 		self.out_dir = self.project_dir + "bin"
-		self.out = self.out_dir + "\\" + self.config["out"]
+		self.out = self.out_dir + self.slash + self.config["out"]
 		self.cc  = self.config["cc"]
 
 		# Compiler flags
 		self.c_flags = " ".join(self.config["c_flags"])
 		self.c_files = " ".join(map((self.project_dir + "{0}").format, self.config["c_files"]))
+		print(self.c_files)
 
 		# Includes and libraries
 		self.includes = (
