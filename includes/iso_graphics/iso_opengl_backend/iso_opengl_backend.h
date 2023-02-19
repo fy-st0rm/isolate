@@ -27,6 +27,7 @@ static void iso_gl_init(iso_window* window) {
 
 	// Setting up alpha channels and blendings
 	GLCall(glEnable(GL_BLEND));
+	GLCall(glEnable(GL_DEPTH_TEST));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 }
 
@@ -47,7 +48,7 @@ static void iso_gl_update(iso_window* window) {
 
 static void iso_gl_clear_window(iso_window* window, iso_color color) {
 	GLCall(glClearColor(color.r, color.g, color.b, color.a));
-	GLCall(glClear(GL_COLOR_BUFFER_BIT));
+	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 /*

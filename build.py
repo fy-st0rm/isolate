@@ -6,7 +6,7 @@ import platform
 class Builder:
 	def __init__(self, config):
 		if platform.system().lower() == "windows":
-			self.slash = "{self.slash}"
+			self.slash = "\\"
 		elif platform.system().lower() == "linux":
 			self.slash = "/"
 

@@ -89,7 +89,7 @@ void iso_start(iso_app* app) {
 			.rot  = (iso_rotation) { .angle = 0.0f, .axes = (iso_vec3) { 0, 0, 1 } },
 			.type = ISO_ORTHOGRAPHIC_CAMERA,
 			.pos  = (iso_vec3) { 0, 0, 0 },
-			.viewport = (iso_camera_viewport_def) {
+			.ortho_viewport = (iso_camera_ortho_viewport_def) {
 				.left   = 0.0f,
 				.right  = 800.0f,
 				.top    = 600.0f,

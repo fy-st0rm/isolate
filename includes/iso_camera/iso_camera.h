@@ -16,13 +16,24 @@ typedef enum {
 } iso_camera_type;
 
 /*
- * @brief Struct that defines the camera viewport
+ * @brief Struct that defines the orthographic camera viewport
  * @mem left, right, top, bottom, near, far = Bounds of the camera view
  */
 
 typedef struct {
 	f32 left, right, top, bottom, near, far;
-} iso_camera_viewport_def;
+} iso_camera_ortho_viewport_def;
+
+/*
+ * @brief Struct that defines the perspective camera viewport
+ * @mem aspect_ratio = Width / height of the window
+ * @mem fov          = Field of view of the camera
+ * @mem near, far    = Near and far render distance
+ */
+
+typedef struct {
+	f32 aspect_ratio, fov, near, far;
+} iso_camera_persp_viewport_def;
 
 /*
  * @brief Struct that holds the camera definition
@@ -30,7 +41,8 @@ typedef struct {
  * @mem type     = Type of camera to construct
  * @mem pos      = Position of the camera
  * @mem rot      = Rotation of the camera
- * @mem viewport = Viewport of the camera
+ * @mem ortho_viewport = Orthogonal Viewport of the camera
+ * @mem persp_viewport = Perspective Viewport of the camera
  */
 
 typedef struct {
@@ -38,7 +50,8 @@ typedef struct {
 	iso_camera_type         type;
 	iso_vec3                pos;
 	iso_rotation            rot;
-	iso_camera_viewport_def viewport;
+	iso_camera_ortho_viewport_def ortho_viewport;
+	iso_camera_persp_viewport_def persp_viewport;
 } iso_camera_def;
 
 /*
@@ -106,7 +119,7 @@ static iso_camera* __iso_ortho_camera_new(iso_camera_manager* man, iso_camera_de
 	cam->rot = def.rot;
 	cam->pos = def.pos;
 
-	iso_camera_viewport_def view = def.viewport;
+	iso_camera_ortho_viewport_def view = def.ortho_viewport;
 	cam->proj = iso_ortho_projection(view.left, view.right, view.top, view.bottom, view.near, view.far);
 
 	// Saving the camera in memory
@@ -142,7 +155,25 @@ static void __iso_ortho_camera_update(iso_camera* cam) {
  */
 
 static iso_camera* __iso_persp_camera_new(iso_camera_manager* man, iso_camera_def def) {
-	iso_assert(false, "PERSPECTIVE_CAMERA has not been implemented yet!\n");
+	iso_camera* cam = iso_alloc(sizeof(iso_camera));
+
+	// Initializing camera
+	iso_assert(strlen(def.name), "Name of camera is not given.\n");
+	cam->name = iso_alloc(strlen(def.name));
+	strcpy(cam->name, def.name);
+	cam->type = def.type;
+
+	// Constructing camera
+	cam->rot = def.rot;
+	cam->pos = def.pos;
+
+	iso_camera_persp_viewport_def view = def.persp_viewport;
+	cam->proj = iso_persp_projection(view.aspect_ratio, view.fov, view.near, view.far);
+
+	// Saving the camera in memory
+	iso_hmap_add(man->cameras, cam->name, cam);
+
+	return cam;
 }
 
 /*
@@ -151,7 +182,13 @@ static iso_camera* __iso_persp_camera_new(iso_camera_manager* man, iso_camera_de
  */
 
 static void __iso_persp_camera_update(iso_camera* cam) {
-	iso_assert(false, "PERSPECTIVE_CAMERA has not been implemented yet!\n");
+	iso_mat4 transform = iso_mat4_identity();
+	iso_mat4_translate(&transform, cam->pos);
+
+	transform = iso_mat4_mul(transform, iso_rotate(cam->rot));
+
+	iso_mat4 view_mat = iso_mat4_inverse(transform);
+	cam->mvp = iso_mat4_mul(cam->proj, view_mat);
 }
 
 /*

@@ -4,6 +4,8 @@
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_includes.h"
 
+#define ISO_PI 3.14159
+#define iso_radians(x) x * ISO_PI / 180
 
 /*====================
  * Vector math
@@ -156,8 +158,38 @@ static iso_mat4 iso_ortho_projection(f32 left, f32 right, f32 top, f32 bottom, f
 	return out;
 }
 
+static iso_mat4 iso_persp_projection(f32 aspect_ratio, f32 fov, f32 near, f32 far) {
+	f32 t = tanf(iso_radians(fov/2));
+
+	iso_mat4 out;
+	iso_mat4_clear(&out);
+
+	out.m[0][0] = (1 / (t * aspect_ratio));
+	out.m[0][1] = 0;
+	out.m[0][2] = 0;
+	out.m[0][3] = 0;
+
+	out.m[1][0] = 0;
+	out.m[1][1] = (1 / t);
+	out.m[1][2] = 0;
+	out.m[1][3] = 0;
+
+	out.m[2][0] = 0;
+	out.m[2][1] = 0;
+	out.m[2][2] = (far + near)/(far - near);
+	out.m[2][3] = -(2 * far * near)/(far - near);
+
+	out.m[3][0] = 0;
+	out.m[3][1] = 0;
+	out.m[3][2] = 1;
+	out.m[3][3] = 0;
+
+	return out;
+}
+
 static iso_mat4 iso_rotate_x(float theta)
 {
+	theta = iso_radians(theta);
 	iso_mat4 out;
 	iso_mat4_clear(&out);
 	out.m[0][0] = 1.0f;
@@ -171,6 +203,7 @@ static iso_mat4 iso_rotate_x(float theta)
 
 static iso_mat4 iso_rotate_y(float theta)
 {
+	theta = iso_radians(theta);
 	iso_mat4 out;
 	iso_mat4_clear(&out);
 	out.m[0][0] = cosf(theta);
@@ -184,6 +217,7 @@ static iso_mat4 iso_rotate_y(float theta)
 
 static iso_mat4 iso_rotate_z(float theta)
 {
+	theta = iso_radians(theta);
 	iso_mat4 out;
 	iso_mat4_clear(&out);
 	out.m[0][0] = cosf(theta);
