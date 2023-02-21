@@ -18,7 +18,7 @@ static char* fragment_shader = "#version 460 core\n"
 "    color = col;\n"
 "};\n";
 
-static iso_color color;
+static iso_color color = { 1, 0, 0, 1 };
 
 iso_app_def iso_init() {
 	iso_window_def window_def = {
@@ -105,19 +105,10 @@ void iso_event(iso_app* app, SDL_Event event) {
 }
 
 void iso_update(iso_app* app, f32 dt) {
-	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0.5, 0.5, 1 });
+	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0, 0, 1 });
 
 	// Rendering
 	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
-
-	color.r += 0.001f;
-	color.g = 1;
-	color.b += 0.001f;
-	color.a = 1.0f;
-
-	if (color.r > 1.0f) color.r = 0.0f;
-	if (color.g > 1.0f) color.g = 0.0f;
-	if (color.b > 1.0f) color.b = 0.0f;
 
 	// Sending the uniform
 	app->graphics->api.uniform_set(app->graphics, (iso_graphics_uniform_def) {
