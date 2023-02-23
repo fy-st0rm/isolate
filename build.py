@@ -32,7 +32,8 @@ class Builder:
 		self.load_config(config)
 
 	def load_config(self, config):
-		self.project_dir = os.path.dirname(config) + self.slash
+		self.project_dir = self.slash.join(os.path.abspath(config).split(self.slash)[:-1]) + self.slash
+		print(self.project_dir)
 		self.config = json.load(open(config, "r"));
 
 		# Loading the data
@@ -49,7 +50,6 @@ class Builder:
 		# Compiler flags
 		self.c_flags = " ".join(self.config["c_flags"])
 		self.c_files = " ".join(map((self.project_dir + "{0}").format, self.config["c_files"]))
-		print(self.c_files)
 
 		# Includes and libraries
 		self.includes = (

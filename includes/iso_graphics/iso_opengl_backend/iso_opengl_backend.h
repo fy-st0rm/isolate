@@ -407,17 +407,63 @@ static void iso_gl_pack_surface(SDL_Surface* surface) {
 }
 
 /*
- * @brief Function to create new opengl texture
+ * @brief Function to create new opengl texture from raw data
  * @param graphics = Pointer to the iso_graphics
  * @param def      = iso_graphics_texture_def struct
  * @return Returns the pointer to the iso_graphics_texture
  */
 
-static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_graphics_texture_def def) {
+static iso_graphics_texture* __iso_gl_texture_new_from_data(iso_graphics* graphics, iso_graphics_texture_def def) {
 	iso_graphics_texture* texture = iso_alloc(sizeof(iso_graphics_texture));
 
+	// Getting the param
+	iso_graphics_texture_from_data_param param = def.param.data_param;
+
+	// Initialize data
+	iso_assert(strlen(def.name), "Name of texture is not defined.\n");
+
+	// Initializing data
+	texture->id = 0;
+	texture->width  = param.width;
+	texture->height = param.height;
+	texture->name = iso_alloc(strlen(def.name));
+	strcpy(texture->name, def.name);
+
+	// Binding the texture
+	GLCall(glGenTextures(1, &texture->id));
+	GLCall(glBindTexture(GL_TEXTURE_2D, texture->id));
+	
+	// Setting up some basic modes to display texture
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, iso_graphics_filter_to_gl_filter(def.filter.min)));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, iso_graphics_filter_to_gl_filter(def.filter.mag)));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	
+	// Sending the pixel data to opengl
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, param.format, GL_UNSIGNED_BYTE, param.pixels));
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+
+	// Saving in graphics memory
+	iso_hmap_add(graphics->textures, texture->name, texture);
+
+	return texture;
+}
+
+/*
+ * @brief Function to create new opengl texture from file
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = iso_graphics_texture_def struct
+ * @return Returns the pointer to the iso_graphics_texture
+ */
+
+static iso_graphics_texture* __iso_gl_texture_new_from_file(iso_graphics* graphics, iso_graphics_texture_def def) {
+	iso_graphics_texture* texture = iso_alloc(sizeof(iso_graphics_texture));
+
+	// Getting the param
+	iso_graphics_texture_from_file_param param = def.param.file_param;
+
 	// Loading image using sdl_image
-	SDL_Surface* surface = iso_sdl_check_ptr(IMG_Load(def.file_path));
+	SDL_Surface* surface = iso_sdl_check_ptr(IMG_Load(param.file_path));
 	iso_gl_flip_surface(surface);
 	iso_gl_pack_surface(surface);
 	u32 format = iso_gl_get_color_format(surface);
@@ -452,6 +498,27 @@ static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_grap
 	iso_hmap_add(graphics->textures, texture->name, texture);
 
 	return texture;
+}
+
+/*
+ * @brief Function to create new opengl texture
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = iso_graphics_texture_def struct
+ * @return Returns the pointer to the iso_graphics_texture
+ */
+
+static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_graphics_texture_def def) {
+	switch (def.type) {
+		case ISO_GRAPHICS_TEXTURE_FROM_FILE:
+			return __iso_gl_texture_new_from_file(graphics, def);
+			break;
+		case ISO_GRAPHICS_TEXTURE_FROM_DATA:
+			return __iso_gl_texture_new_from_data(graphics, def);
+			break;
+		default:
+			iso_assert(false, "Unknown texture type: %d\n", def.type);
+			break;
+	}
 }
 
 /*=========================

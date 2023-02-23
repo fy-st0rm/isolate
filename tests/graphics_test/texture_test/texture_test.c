@@ -86,7 +86,12 @@ void iso_start(iso_app* app) {
 	// Texture
 	iso_graphics_texture_def tex_def = {
 		.name      = "image",
-		.file_path = "image.png",
+		.type      = ISO_GRAPHICS_TEXTURE_FROM_FILE,
+		.param     = {
+			.file_param = (iso_graphics_texture_from_file_param) {
+				.file_path = "image.png"
+			}
+		},
 		.filter    = {
 			.min   = ISO_GRAPHICS_FILTER_LINEAR,
 			.mag   = ISO_GRAPHICS_FILTER_NEAREST

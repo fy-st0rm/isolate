@@ -181,20 +181,57 @@ typedef enum {
 } iso_graphics_filter;
 
 /*
+ * @brief Enum to define multiple texture types
+ */
+
+typedef enum {
+	ISO_GRAPHICS_TEXTURE_FROM_FILE,
+	ISO_GRAPHICS_TEXTURE_FROM_DATA
+} iso_graphics_texture_type;
+
+/*
+ * @brief Structure that defines parameter to load texture from file
+ * @mem file_path = Path to the image
+ */
+
+typedef struct {
+	char* file_path;
+} iso_graphics_texture_from_file_param;
+
+/*
+ * @brief Structure that defines parameter to load texture from raw data
+ * @mem pixels = Pixel buffer
+ * @mem format = Pixel format
+ * @mem width  = Width of the texture
+ * @mem height = Height of the texture
+ */
+
+typedef struct {
+	void* pixels;
+	u32 format;
+	u32 width, height;
+} iso_graphics_texture_from_data_param;
+
+/*
  * @brief Struct to define texture
  * @mem name      = Name of the texture
- * @mem file_path = Path to the image
+ * @mem type      = Type of mode to create a texture from (file/data)
+ * @mem param     = Param required to create texture. Varies according to the type.
  * @mem filter    = Struct to hold min and mag filters
  */
 
 typedef struct {
 	char name[256];
-	char* file_path;
+	iso_graphics_texture_type type;
+
+	union {
+		iso_graphics_texture_from_file_param file_param;
+		iso_graphics_texture_from_data_param data_param;
+	} param;
 
 	struct {
 		iso_graphics_filter min, mag;
 	} filter;
-
 } iso_graphics_texture_def;
 
 /*
