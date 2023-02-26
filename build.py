@@ -33,7 +33,6 @@ class Builder:
 
 	def load_config(self, config):
 		self.project_dir = self.slash.join(os.path.abspath(config).split(self.slash)[:-1]) + self.slash
-		print(self.project_dir)
 		self.config = json.load(open(config, "r"));
 
 		# Loading the data

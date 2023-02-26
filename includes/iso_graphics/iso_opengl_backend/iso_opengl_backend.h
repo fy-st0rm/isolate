@@ -77,9 +77,10 @@ static i32 iso_gl_buffer_usage_to_gl_enum(iso_graphics_buffer_usage_type usage) 
 static i32 iso_graphics_type_to_gl_type(iso_graphics_data_type type) {
 	i32 t = GL_FLOAT;
 	switch (type) {
-		case ISO_GRAPHICS_FLOAT       : t = GL_FLOAT       ; break;
-		case ISO_GRAPHICS_INT         : t = GL_INT         ; break;
-		case ISO_GRAPHICS_UNSIGNED_INT: t = GL_UNSIGNED_INT; break;
+		case ISO_GRAPHICS_FLOAT        : t = GL_FLOAT       ; break;
+		case ISO_GRAPHICS_INT          : t = GL_INT         ; break;
+		case ISO_GRAPHICS_UNSIGNED_INT : t = GL_UNSIGNED_INT; break;
+		case ISO_GRAPHICS_UNSIGNED_BYTE: t = GL_UNSIGNED_BYTE; break;
 		default: iso_assert(0, "Unknown ISO_GRAPHICS_DATA_TYPE: %d\n", type); break;
 	}
 	return t;
@@ -610,6 +611,24 @@ static void iso_gl_render_pipeline_end(iso_graphics* graphics, char* name, i32 i
 	// Draw call
 	GLCall(glBindVertexArray(pip->id));
 	GLCall(glDrawElements(GL_TRIANGLES, indices_cnt, GL_UNSIGNED_INT, NULL));
+}
+
+/*
+ * @brief Function that updates the texture's pixel data
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the texture
+ * @param def      = iso_graphics_texture_update_def struct
+ */
+
+static void iso_gl_texture_update(iso_graphics* graphics, char* name, iso_graphics_texture_update_def def) {
+	iso_graphics_texture* tex;
+	iso_hmap_get(graphics->textures, name, tex);
+
+	GLCall(glTextureSubImage2D(
+		tex->id, def.lod, def.x_offset, def.y_offset,
+		def.width, def.height, def.format,
+		GL_UNSIGNED_BYTE, def.pixels
+	));
 }
 
 /*=========================

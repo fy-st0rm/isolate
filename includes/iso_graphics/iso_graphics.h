@@ -15,7 +15,8 @@
 typedef enum {
 	ISO_GRAPHICS_FLOAT,
 	ISO_GRAPHICS_INT,
-	ISO_GRAPHICS_UNSIGNED_INT
+	ISO_GRAPHICS_UNSIGNED_INT,
+	ISO_GRAPHICS_UNSIGNED_BYTE
 } iso_graphics_data_type;
 
 /*
@@ -27,9 +28,10 @@ typedef enum {
 static size_t iso_graphics_get_type_size(iso_graphics_data_type type) {
 	size_t sz = 0;
 	switch (type) {
-		case ISO_GRAPHICS_FLOAT       : sz = sizeof(f32); break;
-		case ISO_GRAPHICS_INT         : sz = sizeof(i32); break;
-		case ISO_GRAPHICS_UNSIGNED_INT: sz = sizeof(u32); break;
+		case ISO_GRAPHICS_FLOAT        : sz = sizeof(f32); break;
+		case ISO_GRAPHICS_INT          : sz = sizeof(i32); break;
+		case ISO_GRAPHICS_UNSIGNED_INT : sz = sizeof(u32); break;
+		case ISO_GRAPHICS_UNSIGNED_BYTE: sz = sizeof(u32); break;
 		default: iso_assert(0, "Unknown ISO_GRAPHICS_DATA_TYPE: %d\n", type); break;
 	}
 	return sz;
@@ -213,6 +215,27 @@ typedef struct {
 } iso_graphics_texture_from_data_param;
 
 /*
+ * @brief Structure that holds the definition of update texture
+ * @mem pixels = Pointer to the pixel buffers
+ * @mem lod    = Level of details
+ * @mem x_offset = X offset in buffer
+ * @mem y_offset = Y offset in buffer
+ * @mem width    = Width of the image
+ * @mem height   = Height of the image
+ * @mem format   = Pixel format
+ * @mem type     = iso_graphics_data_type
+ */
+
+typedef struct {
+	void* pixels;
+	u32   lod;
+	u32   x_offset, y_offset;
+	u32   width, height;
+	u32   format;
+	iso_graphics_data_type type;
+} iso_graphics_texture_update_def;
+
+/*
  * @brief Struct to define texture
  * @mem name      = Name of the texture
  * @mem type      = Type of mode to create a texture from (file/data)
@@ -369,6 +392,7 @@ struct iso_graphics {
 		void (*uniform_set)           (iso_graphics* graphics, iso_graphics_uniform_def def);                      // Function to set the uniform
 		void (*render_pipeline_begin) (iso_graphics* graphics, char* name);                                        // Function to bind all the buffers to prepare for rendering
 		void (*render_pipeline_end)   (iso_graphics* graphics, char* name, i32 indices_cnt);                       // Function to do a draw call for render pipeline
+		void (*texture_update)        (iso_graphics* graphics, char* name, iso_graphics_texture_update_def def);   // Function to update the texture data
 
 		// Binds
 		void (*vertex_buffer_bind) (iso_graphics* graphics, char* name);    // Function to bind vertex buffer
@@ -499,6 +523,7 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 	graphics->api.uniform_set           = iso_gl_uniform_set;
 	graphics->api.render_pipeline_begin = iso_gl_render_pipeline_begin;
 	graphics->api.render_pipeline_end   = iso_gl_render_pipeline_end;
+	graphics->api.texture_update        = iso_gl_texture_update;
 
 	// Binds
 	graphics->api.vertex_buffer_bind = iso_gl_vertex_buffer_bind;

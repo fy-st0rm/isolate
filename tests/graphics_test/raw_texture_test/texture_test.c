@@ -148,10 +148,32 @@ void iso_event(iso_app* app, SDL_Event event) {
 }
 
 void iso_update(iso_app* app, f32 dt) {
-	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0.5, 0.5, 1 });
+	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0, 0, 1 });
 
 	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
 	app->graphics->api.texture_bind(app->graphics, "image");
+
+	// Updating pixels
+	u32 pixels[4] = {
+		0xff0000ff, 0xff00ffff,
+		0xff0000ff, 0xff00ffff
+	};
+
+	app->graphics->api.texture_update(
+		app->graphics,
+		"image",
+		(iso_graphics_texture_update_def) {
+			.pixels = pixels,
+			.lod = 0,
+			.x_offset = 0,
+			.y_offset = 0,
+			.width = 2,
+			.height = 2,
+			.format = GL_RGBA,
+			.type = ISO_GRAPHICS_UNSIGNED_BYTE
+		}
+	);
+
 	app->graphics->api.render_pipeline_end(app->graphics, "pip", 6);
 }
 
