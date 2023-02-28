@@ -27,6 +27,7 @@ typedef struct {
 #define ISO_MEMORY_CAP 1024
 static iso_memory *memory;
 static i32        *memory_size;
+static i32        *memory_cap;
 
 /*
  * @Brief Initialize the memory stack for memories
@@ -35,7 +36,10 @@ static i32        *memory_size;
 void iso_memory_init() {
 	memory = malloc(sizeof(iso_memory) * ISO_MEMORY_CAP);
 	memory_size = malloc(sizeof(i32));
+	memory_cap  = malloc(sizeof(i32));
+
 	*memory_size = 0;
+	*memory_cap  = ISO_MEMORY_CAP;
 }
 
 /*
@@ -97,6 +101,21 @@ static void iso_print_mem_buffer() {
  * Backend implementation
  */
 
+static void __iso_check_memory_bounds() {
+	if (*memory_size >= *memory_cap) {
+		// Create temp memory and copy the data
+		iso_memory* tmp_mem = malloc(sizeof(iso_memory) * (*memory_cap));
+		memcpy(tmp_mem, memory, sizeof(iso_memory) * (*memory_size));
+		free(memory);
+
+		// Delete old memory and create a new extended one and copy the data again
+		*memory_cap += ISO_MEMORY_CAP;
+		memory = malloc(sizeof(iso_memory) * (*memory_cap));
+		memcpy(memory, tmp_mem, sizeof(iso_memory) * (*memory_size));
+		free(tmp_mem);
+	}
+}
+
 static void* __iso_alloc(size_t size, const char* file, i32 line) {
 	iso_memory mem = {
 		malloc(size),
@@ -106,7 +125,8 @@ static void* __iso_alloc(size_t size, const char* file, i32 line) {
 	};
 	memset(mem.ptr, 0, size);
 
-	iso_assert(*memory_size < ISO_MEMORY_CAP, "Alloc buffer ran out of memory at %s:%d\n", file, line);
+	//iso_assert(*memory_size < ISO_MEMORY_CAP, "Alloc buffer ran out of memory at %s:%d\n", file, line);
+	__iso_check_memory_bounds();
 
 	memory[(*memory_size)++] = mem;
 	return mem.ptr;
