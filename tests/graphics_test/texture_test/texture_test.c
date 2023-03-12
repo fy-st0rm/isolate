@@ -1,3 +1,4 @@
+#define ISO_IMPLEMENTATION
 #include "isolate.h"
 
 static char* vertex_shader = "#version 460 core\n"
@@ -152,4 +153,8 @@ void iso_exit(iso_app* app) {
 	app->graphics->api.shader_delete(app->graphics, "shader");
 	app->graphics->api.texture_delete(app->graphics, "image");
 	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
+}
+
+int main(int argc, char** argv) {
+	return iso_run(argc, argv);
 }

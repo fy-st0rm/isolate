@@ -1,5 +1,6 @@
-#define ISO_IMPLEMENTATION
-#include "isolate.h"
+#include "game.h"
+
+static game_t* game;
 
 iso_app_def iso_init() {
 	iso_window_def window_def = {
@@ -20,6 +21,7 @@ iso_app_def iso_init() {
 }
 
 void iso_start(iso_app* app) {
+	game = game_new(app);
 }
 
 void iso_event(iso_app* app, SDL_Event event) {
@@ -33,6 +35,7 @@ void iso_update(iso_app* app, f32 dt) {
 }
 
 void iso_exit(iso_app* app) {
+	game_delete(game);
 }
 
 int main(int argc, char** argv) {

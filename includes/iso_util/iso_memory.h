@@ -25,18 +25,31 @@ typedef struct {
  */
 
 #define ISO_MEMORY_CAP 1024
-static iso_memory *memory;
-static i32        *memory_size;
-static i32        *memory_cap;
+extern iso_memory *memory;
+extern i32        *memory_size;
+extern i32        *memory_cap;
+
+
+/*
+ * Its a trick to make global variables in header only library
+ * For this ISO_IMPLEMENTATION should be defined in a single translation unit
+ * before including the file
+ */
+
+#ifdef ISO_IMPLEMENTATION
+iso_memory *memory;
+i32        *memory_size;
+i32        *memory_cap;
+#endif // ISO_IMPLEMENTATION
 
 /*
  * @Brief Initialize the memory stack for memories
  */
 
-void iso_memory_init() {
-	memory = malloc(sizeof(iso_memory) * ISO_MEMORY_CAP);
-	memory_size = malloc(sizeof(i32));
-	memory_cap  = malloc(sizeof(i32));
+static void iso_memory_init() {
+	memory      = (iso_memory*) malloc(sizeof(iso_memory) * ISO_MEMORY_CAP);
+	memory_size = (i32*) malloc(sizeof(i32));
+	memory_cap  = (i32*) malloc(sizeof(i32));
 
 	*memory_size = 0;
 	*memory_cap  = ISO_MEMORY_CAP;
@@ -104,13 +117,13 @@ static void iso_print_mem_buffer() {
 static void __iso_check_memory_bounds() {
 	if (*memory_size >= *memory_cap) {
 		// Create temp memory and copy the data
-		iso_memory* tmp_mem = malloc(sizeof(iso_memory) * (*memory_cap));
+		iso_memory* tmp_mem = (iso_memory*) malloc(sizeof(iso_memory) * (*memory_cap));
 		memcpy(tmp_mem, memory, sizeof(iso_memory) * (*memory_size));
 		free(memory);
 
 		// Delete old memory and create a new extended one and copy the data again
 		*memory_cap += ISO_MEMORY_CAP;
-		memory = malloc(sizeof(iso_memory) * (*memory_cap));
+		memory = (iso_memory*) malloc(sizeof(iso_memory) * (*memory_cap));
 		memcpy(memory, tmp_mem, sizeof(iso_memory) * (*memory_size));
 		free(tmp_mem);
 	}

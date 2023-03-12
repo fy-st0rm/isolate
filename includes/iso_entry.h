@@ -45,7 +45,7 @@ void iso_exit(iso_app* app);
  * @param argv = List of command line arguments.
  */
 
-int main(int argc, char** argv) {
+static int iso_run(int argc, char** argv) {
 
 	// Initialize the engine memory
 	iso_memory_init();

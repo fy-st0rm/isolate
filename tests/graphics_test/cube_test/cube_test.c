@@ -1,3 +1,4 @@
+#define ISO_IMPLEMENTATION
 #include "isolate.h"
 
 // Triangle points and indices
@@ -173,4 +174,8 @@ void iso_exit(iso_app* app) {
 	app->graphics->api.shader_delete(app->graphics, "shader");
 	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
 	app->camera_man->api.camera_delete(app->camera_man, "camera");
+}
+
+int main(int argc, char** argv) {
+	return iso_run(argc, argv);
 }
