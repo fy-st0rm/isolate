@@ -3,7 +3,7 @@
 	"isolate_path": "",
 
 	"out": "out",
-	"cc": "/usr/bin/cc",
+	"cc": "gcc",
 	"c_flags": [""],
 	"c_files": ["main.c", "game.c", "iso.c"],
 	"includes": [],

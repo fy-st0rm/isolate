@@ -1,47 +1,47 @@
 [
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "/usr/bin/cc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "/usr/bin/cc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "/usr/bin/cc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c"
-    },
-    {
-        "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c",
-        "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c"
-    }
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/main.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/game.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/multi_file_test/iso.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/window_test/window_test.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/tri_test/tri_test.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/raw_texture_test/texture_test.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cube_test/cube_test.c"
+  },
+  {
+    "directory": "/home/st0rm/Documents/c_projects/isolate/",
+    "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c",
+    "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c"
+  }
 ]

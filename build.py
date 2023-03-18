@@ -77,10 +77,13 @@ class Builder:
 		print("[CMD]:", cmd, end="\n\n")
 		os.system(cmd)
 
+	# Generates compile_commands.json file for neovim lsp for c/c++
 	def __generate_cmp_cmds(self):
-		cmp_cmds = []
+		cmp_cmds = {}
 		if os.path.isfile(CMP_CMDS):
-			cmp_cmds = json.load(open(CMP_CMDS, "r"))
+			cmp_cmds_org = json.load(open(CMP_CMDS, "r"))
+			for i in cmp_cmds_org:
+				cmp_cmds.update({i["file"]: i})
 
 		for c_file, o_file in zip(self.c_files, self.o_files):
 			cmd = f"{self.cc} {self.c_flags} {self.includes} -o {o_file} -c {c_file}"
@@ -89,10 +92,10 @@ class Builder:
 				"command": cmd, 
 				"file": c_file
 			}
-			if section not in cmp_cmds:
-				cmp_cmds.append(section)
+			cmp_cmds.update({c_file: section})
 
-		json.dump(cmp_cmds, open(CMP_CMDS, "w"), indent=4)
+		dump = [cmp_cmds[i] for i in cmp_cmds]
+		json.dump(dump, open(CMP_CMDS, "w"), indent=4)
 
 	def __compile(self):
 		# Compiling
