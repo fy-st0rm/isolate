@@ -1,12 +1,11 @@
 {
-	"platform": "auto",
-	"isolate_path": "",
-
-	"out": "out",
-	"cc": "gcc",
-	"c_flags": [],
-	"c_files": [],
-	"includes": [],
-	"lib_path": [],
-	"lib": []
+    "platform": "auto",
+    "isolate_path": "",
+    "out": "out",
+    "cc": "gcc",
+    "c_flags": [],
+    "c_files": [],
+    "includes": [],
+    "lib_path": [],
+    "lib": []
 }

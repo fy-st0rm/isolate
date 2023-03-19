@@ -18,7 +18,7 @@ class Builder:
 			"windows": ["mingw32", "SDL2main", "SDL2", "SDL2_image", "m",
 						"glu32", "opengl32", "User32", "Gdi32", "Shell32", "glew32"],
 			"linux"  : ["SDL2main", "SDL2", "SDL2_image", 
-					    "m", "GL", "GLU", "GLEW"]
+						"m", "GL", "GLU", "GLEW"]
 		}
 
 		self.isolate_includes = {
@@ -36,7 +36,7 @@ class Builder:
 		self.load_config(config)
 
 	def load_config(self, config):
-		self.exec_dir    = self.slash.join(os.path.abspath(__name__).split(self.slash)[:-1]) + self.slash
+		self.exec_dir	 = self.slash.join(os.path.abspath(__name__).split(self.slash)[:-1]) + self.slash
 		self.project_dir = self.slash.join(os.path.abspath(config).split(self.slash)[:-1]) + self.slash
 		self.config = json.load(open(config, "r"));
 
@@ -137,11 +137,28 @@ class Builder:
 		self.__generate_cmp_cmds()
 
 
+def init_conf():
+	conf = {
+		"platform": "auto",
+		"isolate_path": "",
+		"out": "out",
+		"cc": "gcc",
+		"c_flags": [],
+		"c_files": [],
+		"includes": [],
+		"lib_path": [],
+		"lib": []
+	}
+
+	print("[CMD]: Generating default config file.")
+	json.dump(conf, open(DEF_CONF, "w"), indent=4)
+
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
-		config_file = DEF_CONF
-	else:
-		config_file = sys.argv[1]
+		sys.argv.append(DEF_CONF)
 
-	builder = Builder(config_file)
-	builder.run()
+	if sys.argv[1] == "init":
+		init_conf()
+	else:
+		builder = Builder(sys.argv[1])
+		builder.run()
