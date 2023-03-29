@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <time.h>
 
 // Graphics library (SDL and OPENGL)
 #include <SDL2/SDL.h>

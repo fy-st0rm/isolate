@@ -8,8 +8,8 @@
  * @brief Assertion macro. Exists the program with error message with file name and line number.
  */
 
-#define __assert(...) { fprintf(stderr, "\033[31m[ASSERTION]: %s:%d:\033[0m ", __FILE__, __LINE__); fprintf(stderr, __VA_ARGS__); exit(1); }
-#define iso_assert(x, ...) x ? 0 : (__assert(__VA_ARGS__))
+#define __assert(...) ({ fprintf(stderr, "\033[31m[ASSERTION]: %s:%d:\033[0m ", __FILE__, __LINE__); fprintf(stderr, __VA_ARGS__); exit(1); })
+#define iso_assert(x, ...) (x) ? 0 : (__assert(__VA_ARGS__))
 
 /*
  * @brief Function to check for sdl int return value.
@@ -69,7 +69,7 @@ static void clear_gl_error()
 static bool gl_error_log(const char* function, const char* file, int line)
 {
 	GLenum error;
-	while (error = glGetError())
+	while ((error = glGetError()))
 	{
 		fprintf(stderr, "[Error code]: %d\n", error);
 		fprintf(stderr, "[Error message]: %s\n", gluErrorString(error));

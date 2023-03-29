@@ -46,6 +46,7 @@ void iso_exit(iso_app* app);
  */
 
 static int iso_run(int argc, char** argv) {
+	srand(time(NULL));
 
 	// Initialize the engine memory
 	iso_memory_init();

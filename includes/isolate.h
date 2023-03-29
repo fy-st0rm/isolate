@@ -7,6 +7,9 @@
 #include "iso_util/iso_log.h"
 #include "iso_util/iso_hash_map.h"
 
+/* ECS */
+#include "iso_ecs/iso_ecs.h"
+
 /* Graphics */
 #include "iso_graphics/iso_graphics.h"
 

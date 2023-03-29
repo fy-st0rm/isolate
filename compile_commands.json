@@ -43,5 +43,15 @@
         "directory": "/home/st0rm/Documents/c_projects/isolate/",
         "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c",
         "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/cam_test/cam_test.c"
+    },
+    {
+        "directory": "/home/st0rm/Documents/c_projects/isolate/",
+        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/main.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/main.c",
+        "file": "/home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/main.c"
+    },
+    {
+        "directory": "/home/st0rm/Documents/c_projects/isolate/",
+        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/ecs_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/ecs_test.c",
+        "file": "/home/st0rm/Documents/c_projects/isolate/tests/util_tests/ecs_test/ecs_test.c"
     }
 ]
