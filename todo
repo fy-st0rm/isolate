@@ -1,6 +1,6 @@
 # Completed
 [x] Entity Component System
+[x] Logger for both Release and Debug build
 
 # TODO
-[ ] Logger for both Release and Debug build
 [ ] A 2D renderer

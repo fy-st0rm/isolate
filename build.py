@@ -21,6 +21,11 @@ class Builder:
 						"m", "GL", "GLU", "GLEW"]
 		}
 
+		self.build_type = {
+			"debug": "-DISO_BUILD_DEBUG",
+			"release": "-DISO_BUILD_RELEASE"
+		}
+
 		self.isolate_includes = {
 			"windows": [f"includes{self.slash}", f"vendor{self.slash}GLEW{self.slash}include{self.slash}", f"vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}", f"isolate{self.slash}includes"],
 			"linux"  : [f"includes{self.slash}", f"{self.slash}usr{self.slash}include{self.slash}", f"isolate{self.slash}includes"]
@@ -53,9 +58,11 @@ class Builder:
 
 		# Compiler flags
 		self.c_flags = " ".join(self.config["c_flags"])
-		# self.c_files = " ".join(map((self.project_dir + "{0}").format, self.config["c_files"]))
 		self.c_files = list(map((self.project_dir + "{0}").format, self.config["c_files"]))
 		self.o_files = list(map((self.project_dir + "{0}.o").format, self.config["c_files"]))
+
+		# Loading build type
+		self.c_flags += " " + self.build_type[self.config["build"]] + " "
 
 		# Includes and libraries
 		self.includes = (
@@ -140,6 +147,7 @@ class Builder:
 def init_conf():
 	conf = {
 		"platform": "auto",
+		"build": "debug",
 		"isolate_path": "",
 		"out": "out",
 		"cc": "gcc",

@@ -51,6 +51,8 @@ typedef struct {
  */
 
 static iso_app* iso_app_new(iso_app_def app_def) {
+	iso_log_info("Constructing the application\n");
+
 	iso_app* app = iso_alloc(sizeof(iso_app));
 
 	// Creating iso_window
@@ -69,6 +71,7 @@ static iso_app* iso_app_new(iso_app_def app_def) {
 
 	app->fps = app_def.fps;
 
+	iso_log_sucess("Created application\n\n");
 	return app;
 }
 
@@ -78,12 +81,16 @@ static iso_app* iso_app_new(iso_app_def app_def) {
  */
 
 static void iso_app_delete(iso_app* app) {
+	iso_log_info("Deleting application\n");
+
 	// Cleaning memory
-	iso_window_delete(app->window);
 	iso_graphics_delete(app->graphics);
 	iso_camera_manager_delete(app->camera_man);
+	iso_window_delete(app->window);
 
 	iso_free(app);
+
+	iso_log_sucess("Deleted application\n\n");
 }
 
 #endif // __ISO_APP_H__

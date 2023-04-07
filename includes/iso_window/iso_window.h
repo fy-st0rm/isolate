@@ -66,6 +66,8 @@ typedef struct {
  */
 
 static iso_window* iso_window_new(iso_window_def window_def) {
+	iso_log_info("Constructing iso_window.\n");
+
 	iso_window* window = iso_alloc(sizeof(iso_window));
 
 	// Initializing sdl
@@ -83,6 +85,7 @@ static iso_window* iso_window_new(iso_window_def window_def) {
 	window->sdl_window   = iso_sdl_check_ptr(SDL_CreateWindow(window_def.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_def.width, window_def.height, window_def.flags));
 	window->sdl_renderer = iso_sdl_check_ptr(SDL_CreateRenderer(window->sdl_window, -1, SDL_RENDERER_ACCELERATED));
 
+	iso_log_sucess("Created iso_window:\n\tTitle: `%s`\n\tRes: %dx%d\n\n", window->title, window->width, window->height);
 	return window;
 }
 
@@ -92,6 +95,8 @@ static iso_window* iso_window_new(iso_window_def window_def) {
  */
 
 static void iso_window_delete(iso_window* window) {
+	iso_log_info("Deleting iso_window\n");
+
 	// Deleting sdl window and renderer
 	SDL_DestroyWindow(window->sdl_window);
 	SDL_DestroyRenderer(window->sdl_renderer);
@@ -103,6 +108,8 @@ static void iso_window_delete(iso_window* window) {
 	// Quiting sdl
 	IMG_Quit();
 	SDL_Quit();
+
+	iso_log_sucess("Deleted iso_window\n\n");
 }
 
 

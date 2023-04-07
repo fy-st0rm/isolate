@@ -14,6 +14,7 @@
  */
 
 static void iso_gl_init(iso_window* window) {
+	iso_log_info("Initializing opengl backend\n");
 
 	// Setting some attributes
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -29,6 +30,8 @@ static void iso_gl_init(iso_window* window) {
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glEnable(GL_DEPTH_TEST));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+	iso_log_sucess("Opengl has been initialized\n\n");
 }
 
 /*
@@ -102,6 +105,21 @@ static i32 iso_graphics_filter_to_gl_filter(iso_graphics_filter filter) {
 	return gl_f;
 }
 
+
+/*
+ * @brief Function to convert gl_shader tyoe to string
+ * @param type = u32 opengl shader type
+ * @return Returns shader name in string
+ */
+
+static char* iso_gl_shader_to_str(u32 type) {
+	switch (type) {
+		case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
+		case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+		default: iso_assert(false, "Unknown shader type: %d\n", type);
+	}
+}
+
 /*=========================
  * Buffer constructions
  *=======================*/
@@ -114,6 +132,8 @@ static i32 iso_graphics_filter_to_gl_filter(iso_graphics_filter filter) {
  */
 
 static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphics, iso_graphics_vertex_buffer_def def) {
+	iso_log_info("Constructing opengl_vertex_buffer\n");
+
 	iso_graphics_vertex_buffer* vbo = iso_alloc(sizeof(iso_graphics_vertex_buffer));
 
 	iso_assert(strlen(def.name), "Name of vertex buffer is not defined.\n");
@@ -137,6 +157,8 @@ static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphi
 	// Saving the graphics memory
 	iso_hmap_add(graphics->vertex_buffers, vbo->name, vbo);
 
+	iso_log_sucess("Created opengl_vertex_buffer:\n\tName:`%s`\n\tID:%d\n\n", vbo->name, vbo->id);
+
 	return vbo;
 }
 
@@ -148,6 +170,8 @@ static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphi
  */
 
 static iso_graphics_index_buffer* iso_gl_index_buffer_new(iso_graphics* graphics, iso_graphics_index_buffer_def def) {
+	iso_log_info("Constructing opengl_index_buffer\n");
+
 	iso_graphics_index_buffer* ibo = iso_alloc(sizeof(iso_graphics_index_buffer));
 
 	iso_assert(strlen(def.name), "Name of index buffer is not defined.\n");
@@ -171,6 +195,8 @@ static iso_graphics_index_buffer* iso_gl_index_buffer_new(iso_graphics* graphics
 	// Saving the graphics memory
 	iso_hmap_add(graphics->index_buffers, ibo->name, ibo);
 
+	iso_log_sucess("Created opengl_index_buffer:\n\tName:`%s`\n\tID:%d\n\n", ibo->name, ibo->id);
+
 	return ibo;
 }
 
@@ -182,6 +208,8 @@ static iso_graphics_index_buffer* iso_gl_index_buffer_new(iso_graphics* graphics
  */
 
 static u32 iso_gl_compile_shader(u32 type, char* shader_src) {
+	iso_log_info("Compiling shader: %s\n", iso_gl_shader_to_str(type));
+
 	u32 id = glCreateShader(type);
 
 	GLCall(glShaderSource(id, 1, &shader_src, NULL));
@@ -204,6 +232,7 @@ static u32 iso_gl_compile_shader(u32 type, char* shader_src) {
 		return 0;
 	}
 
+	iso_log_sucess("Compiled shader: %s\n", iso_gl_shader_to_str(type));
 	return id;
 }
 
@@ -258,6 +287,8 @@ static u32 iso_gl_shader_new_from_file(char* v_path, char* f_path) {
  */
 
 static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphics_shader_def def) {
+	iso_log_info("Constructing opengl_shader\n");
+
 	iso_graphics_shader* shader = iso_alloc(sizeof(iso_graphics_shader));
 
 	iso_assert(strlen(def.name), "Name of shader is not defined.\n");
@@ -282,6 +313,7 @@ static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphi
 	// Saving in graphics memory
 	iso_hmap_add(graphics->shaders, shader->name, shader);
 
+	iso_log_sucess("Created shader:\n\tName: `%s`\n\tID: %d\n\n", shader->name, shader->id);
 	return shader;
 }
 
@@ -293,6 +325,8 @@ static iso_graphics_shader* iso_gl_shader_new(iso_graphics* graphics, iso_graphi
  */
 
 static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* graphics, iso_graphics_render_pipeline_def def) {
+	iso_log_info("Constructing render pipeline\n");
+
 	iso_graphics_render_pipeline* pip = iso_alloc(sizeof(iso_graphics_render_pipeline));
 
 	iso_assert(strlen(def.name), "Name of render pipeline is not defined.\n");
@@ -322,6 +356,8 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 		stride += layout.amt * iso_graphics_get_type_size(layout.type);
 	}
 
+	iso_log_info("Setting up vertex attribute layouts\n");
+
 	// Generating layout
 	size_t offset = 0;
 	for (i32 i = 0; i < def.amt; i++) {
@@ -337,6 +373,7 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 	// Saving in graphics memory
 	iso_hmap_add(graphics->render_pipelines, pip->name, pip);
 
+	iso_log_sucess("Created opengl_render_pipeline:\n\tName:`%s`\n\tID: %d\n\tLayouts: %d\n\n", pip->name, pip->id, def.amt);
 	return pip;
 }
 
@@ -446,6 +483,7 @@ static iso_graphics_texture* __iso_gl_texture_new_from_data(iso_graphics* graphi
 
 	// Saving in graphics memory
 	iso_hmap_add(graphics->textures, texture->name, texture);
+	iso_log_sucess("Created opengl_texture:\n\tName: `%s`\n\tID: %d\n\tRes: %dx%d\n\n", texture->name, texture->id, texture->width, texture->height);
 
 	return texture;
 }
@@ -462,6 +500,8 @@ static iso_graphics_texture* __iso_gl_texture_new_from_file(iso_graphics* graphi
 
 	// Getting the param
 	iso_graphics_texture_from_file_param param = def.param.file_param;
+
+	iso_log_info("Loading texture from file: `%s`\n", param.file_path);
 
 	// Loading image using sdl_image
 	SDL_Surface* surface = iso_sdl_check_ptr(IMG_Load(param.file_path));
@@ -497,6 +537,7 @@ static iso_graphics_texture* __iso_gl_texture_new_from_file(iso_graphics* graphi
 
 	// Saving in graphics memory
 	iso_hmap_add(graphics->textures, texture->name, texture);
+	iso_log_sucess("Created opengl_texture:\n\tName: `%s`\n\tID: %d\n\tRes: %dx%d\n\n", texture->name, texture->id, texture->width, texture->height);
 
 	return texture;
 }
@@ -509,6 +550,8 @@ static iso_graphics_texture* __iso_gl_texture_new_from_file(iso_graphics* graphi
  */
 
 static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_graphics_texture_def def) {
+	iso_log_info("Constructing opengl_texture\n");
+
 	switch (def.type) {
 		case ISO_GRAPHICS_TEXTURE_FROM_FILE:
 			return __iso_gl_texture_new_from_file(graphics, def);
@@ -694,6 +737,8 @@ static void iso_gl_texture_bind(iso_graphics* graphics, char* name) {
  */
 
 static void iso_gl_vertex_buffer_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleting opengl_vertex_buffer: `%s`\n", name);
+
 	iso_graphics_vertex_buffer* vbo;
 	iso_hmap_get(graphics->vertex_buffers, name, vbo);
 
@@ -702,6 +747,8 @@ static void iso_gl_vertex_buffer_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->vertex_buffers, name);
 	iso_free(vbo->name);
 	iso_free(vbo);
+
+	iso_log_sucess("Deleted opengl_vertex_buffer: `%s`\n\n", name);
 }
 
 /*
@@ -711,6 +758,8 @@ static void iso_gl_vertex_buffer_delete(iso_graphics* graphics, char* name) {
  */
 
 static void iso_gl_index_buffer_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleting opengl_index_buffer: `%s`\n", name);
+
 	iso_graphics_index_buffer* ibo;
 	iso_hmap_get(graphics->index_buffers, name, ibo);
 
@@ -719,6 +768,8 @@ static void iso_gl_index_buffer_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->index_buffers, name);
 	iso_free(ibo->name);
 	iso_free(ibo);
+
+	iso_log_sucess("Deleted opengl_index_buffer: `%s`\n\n", name);
 }
 
 /*
@@ -728,6 +779,8 @@ static void iso_gl_index_buffer_delete(iso_graphics* graphics, char* name) {
  */
 
 static void iso_gl_shader_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleteing opengl_shader: `%s`\n", name);
+
 	iso_graphics_shader* shader;
 	iso_hmap_get(graphics->shaders, name, shader);
 
@@ -736,6 +789,8 @@ static void iso_gl_shader_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->shaders, name);
 	iso_free(shader->name);
 	iso_free(shader);
+	
+	iso_log_sucess("Deleted opengl_shader: `%s`\n\n", name);
 }
 
 /*
@@ -745,6 +800,8 @@ static void iso_gl_shader_delete(iso_graphics* graphics, char* name) {
  */
 
 static void iso_gl_render_pipeline_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleting opengl_render_pipeline: `%s`\n", name);
+
 	iso_graphics_render_pipeline* pip;
 	iso_hmap_get(graphics->render_pipelines, name, pip);
 
@@ -753,6 +810,8 @@ static void iso_gl_render_pipeline_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->render_pipelines, name);
 	iso_free(pip->name);
 	iso_free(pip);
+
+	iso_log_sucess("Deleted opengl_render_pipeline: `%s`\n\n", name);
 }
 
 /*
@@ -762,6 +821,8 @@ static void iso_gl_render_pipeline_delete(iso_graphics* graphics, char* name) {
  */
 
 static void iso_gl_texture_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleting opengl_texture: `%s`\n", name);
+
 	iso_graphics_texture* texture;
 	iso_hmap_get(graphics->textures, name, texture);
 
@@ -770,6 +831,8 @@ static void iso_gl_texture_delete(iso_graphics* graphics, char* name) {
 	iso_hmap_remove(graphics->textures, name);
 	iso_free(texture->name);
 	iso_free(texture);
+
+	iso_log_sucess("Deleted opengl_texture: `%s`\n\n", name);
 }
 
 #endif // __ISO_OPENGL_BACKEND_H__

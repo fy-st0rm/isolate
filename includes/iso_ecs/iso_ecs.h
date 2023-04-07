@@ -265,7 +265,9 @@ static void iso_comp_table_delete(iso_comp_table* table) {
  * @return Returns True if found else False
  */
 
-static b8 iso_comp_table_search(iso_comp_table* table, char* name) {
+#define iso_comp_table_search(table, comp) __iso_comp_table_search(table, #comp)
+
+static b8 __iso_comp_table_search(iso_comp_table* table, char* name) {
 	for (u32 i = 0; i < table->record_cnt; i++) {
 		iso_comp_record* rec = table->records[i];
 		if (strcmp(name, rec->name) == 0) {
@@ -282,7 +284,9 @@ static b8 iso_comp_table_search(iso_comp_table* table, char* name) {
  * @param name  = Name of the component to be added
  */
 
-static void iso_comp_table_add_record(iso_comp_table* table, char* name) {
+#define iso_comp_table_add_record(table, comp) __iso_comp_table_add_record(table, #comp)
+
+static void __iso_comp_table_add_record(iso_comp_table* table, char* name) {
 	iso_assert(table->record_cnt < table->max_record_cnt, "Component table is full. Cant create new record `%s`.\n", name);
 	table->records[table->record_cnt++] = iso_comp_record_new(name, table->max_record_cnt);
 }
@@ -295,7 +299,9 @@ static void iso_comp_table_add_record(iso_comp_table* table, char* name) {
  * @return Returns pointer to iso_comp_record if found else NULL is returned
  */
 
-static iso_comp_record* iso_comp_table_get_record(iso_comp_table* table, char* name) {
+#define iso_comp_table_get_record(table, comp) __iso_comp_table_get_record(table, #comp)
+
+static iso_comp_record* __iso_comp_table_get_record(iso_comp_table* table, char* name) {
 	for (u32 i = 0; i < table->record_cnt; i++) {
 		iso_comp_record* rec = table->records[i];
 		if (strcmp(name, rec->name) == 0) {
@@ -427,11 +433,11 @@ static void iso_entity_delete(iso_ecs* ecs, iso_entity ent) {
 static void* __iso_entity_add_component(iso_ecs* ecs, iso_entity ent, char* name, void* data) {
 	iso_assert(ecs->slots[ent] == OCCUPIED, "Entity `%d` doesnt exists.\n", ent);
 
-	if (!iso_comp_table_search(ecs->table, name)) {
-		iso_comp_table_add_record(ecs->table, name);
+	if (!__iso_comp_table_search(ecs->table, name)) {
+		__iso_comp_table_add_record(ecs->table, name);
 	}
 
-	iso_comp_record* rec  = iso_comp_table_get_record(ecs->table, name);
+	iso_comp_record* rec  = __iso_comp_table_get_record(ecs->table, name);
 	iso_comp_entry* entry = iso_comp_record_add_entry(rec, ent, data);
 
 	iso_assert(entry, "Failed to add component `%s` in entity `%d`.\n", name, ent);
@@ -448,9 +454,9 @@ static void* __iso_entity_add_component(iso_ecs* ecs, iso_entity ent, char* name
  */
 
 static void* __iso_entity_get_component(iso_ecs* ecs, iso_entity ent, char* name) {
-	iso_assert(iso_comp_table_search(ecs->table, name), "Component `%s` is not in component table.\n", name);
+	iso_assert(__iso_comp_table_search(ecs->table, name), "Component `%s` is not in component table.\n", name);
 
-	iso_comp_record* rec = iso_comp_table_get_record(ecs->table, name);
+	iso_comp_record* rec = __iso_comp_table_get_record(ecs->table, name);
 	iso_assert(iso_comp_record_search(rec, ent), "Entity `%d` doesnt have component `%s`.\n", ent, name);
 
 	iso_comp_entry* entry = iso_comp_record_get_entry(rec, ent);
@@ -468,9 +474,9 @@ static void* __iso_entity_get_component(iso_ecs* ecs, iso_entity ent, char* name
  */
 
 static void __iso_entity_remove_component(iso_ecs* ecs, iso_entity ent, char* name) {
-	iso_assert(iso_comp_table_search(ecs->table, name), "Component `%s` is not in table.\n", name);
+	iso_assert(__iso_comp_table_search(ecs->table, name), "Component `%s` is not in table.\n", name);
 
-	iso_comp_record* rec = iso_comp_table_get_record(ecs->table, name);
+	iso_comp_record* rec = __iso_comp_table_get_record(ecs->table, name);
 	iso_assert(iso_comp_record_search(rec, ent), "Entity `%d` doesnt have component `%s`.\n", ent, name);
 
 	iso_comp_record_remove_entry(rec, ent);

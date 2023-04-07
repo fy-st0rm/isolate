@@ -107,6 +107,8 @@ struct iso_camera_manager {
  */
 
 static iso_camera* __iso_ortho_camera_new(iso_camera_manager* man, iso_camera_def def) {
+	iso_log_info("Constructing iso_ortho_camera\n");
+
 	iso_camera* cam = iso_alloc(sizeof(iso_camera));
 
 	// Initializing camera
@@ -125,6 +127,7 @@ static iso_camera* __iso_ortho_camera_new(iso_camera_manager* man, iso_camera_de
 	// Saving the camera in memory
 	iso_hmap_add(man->cameras, cam->name, cam);
 
+	iso_log_sucess("Created iso_ortho_camera:\n\tName: `%s`\n\tViewport: %f-%f-%f-%f-%f-%f\n\n", cam->name, view.left, view.right, view.top, view.bottom, view.near, view.far);
 	return cam;
 }
 
@@ -155,6 +158,8 @@ static void __iso_ortho_camera_update(iso_camera* cam) {
  */
 
 static iso_camera* __iso_persp_camera_new(iso_camera_manager* man, iso_camera_def def) {
+	iso_log_info("Constructing iso_perspective_camera\n");
+
 	iso_camera* cam = iso_alloc(sizeof(iso_camera));
 
 	// Initializing camera
@@ -172,6 +177,7 @@ static iso_camera* __iso_persp_camera_new(iso_camera_manager* man, iso_camera_de
 
 	// Saving the camera in memory
 	iso_hmap_add(man->cameras, cam->name, cam);
+	iso_log_sucess("Created iso_perspective_camera:\n\tName: `%s`\n\tViewport: %f-%f-%f-%f\n\n", cam->name, view.aspect_ratio, view.fov, view.near, view.far);
 
 	return cam;
 }
@@ -216,10 +222,14 @@ static iso_camera* __iso_camera_new(iso_camera_manager* man, iso_camera_def def)
  */
 
 static void __iso_camera_delete(iso_camera_manager* man, char* name) {
+	iso_log_info("Deleting camera: `%s`\n", name);
+
 	iso_camera* cam;
 	iso_hmap_get(man->cameras, name, cam);
 	iso_free(cam->name);
 	iso_free(cam);
+
+	iso_log_sucess("Deleted camera: `%s`\n\n", name);
 }
 
 /*
@@ -263,6 +273,8 @@ static iso_camera* __iso_get_camera(iso_camera_manager* man, char* name) {
  */
 
 static iso_camera_manager* iso_camera_manager_new() {
+	iso_log_info("Constructing iso_camera_manager\n");
+
 	iso_camera_manager* man = iso_alloc(sizeof(iso_camera_manager));
 
 	// Loading the functions
@@ -271,6 +283,7 @@ static iso_camera_manager* iso_camera_manager_new() {
 	man->api.camera_update = __iso_camera_update;
 	man->memory.get_camera = __iso_get_camera;
 
+	iso_log_sucess("Created iso_camera_manager\n\n");
 	return man;
 }
 
@@ -280,8 +293,10 @@ static iso_camera_manager* iso_camera_manager_new() {
  */
 
 static void iso_camera_manager_delete(iso_camera_manager* man) {
+	iso_log_info("Deleting iso_camera_manager\n");
 	iso_hmap_delete(man->cameras);
 	iso_free(man);
+	iso_log_sucess("Deleted iso_camera_manager\n\n");
 }
 
 #endif // __ISO_CAMERA_H__

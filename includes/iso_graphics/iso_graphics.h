@@ -343,6 +343,20 @@ typedef enum {
 	ISO_OPENGL_API = SDL_WINDOW_OPENGL,
 } iso_graphics_api;
 
+
+/*
+ * @brief Function that converts api id to string
+ * @param api = iso_graphics_api
+ * @return Returns the api name in string
+ */
+
+static char* iso_graphics_api_to_str(iso_graphics_api api) {
+	switch (api) {
+		case ISO_OPENGL_API: return "ISO_OPENGL_API";
+		default: iso_assert(false, "Unsupported iso_graphics_api: %d\n", api);
+	}
+}
+
 /*
  * @brief Graphics defination structure. Defines on how the graphics should be.
  * @mem api          = Graphics api to use.
@@ -507,6 +521,8 @@ static void __iso_load_memory_functions(iso_graphics* graphics) {
  */
 
 static void __iso_load_opengl_functions(iso_graphics* graphics) {
+	iso_log_info("Loading iso_opengl_backend functions\n");
+
 	graphics->api.init         = iso_gl_init;
 	graphics->api.update       = iso_gl_update;
 	graphics->api.clear_window = iso_gl_clear_window;
@@ -537,6 +553,8 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 	graphics->api.shader_delete          = iso_gl_shader_delete;
 	graphics->api.render_pipeline_delete = iso_gl_render_pipeline_delete;
 	graphics->api.texture_delete         = iso_gl_texture_delete;
+
+	iso_log_sucess("Loaded iso_opengl_backend functions\n");
 }
 
 /*
@@ -547,6 +565,8 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 
 static iso_graphics* iso_graphics_new(iso_graphics_def graphics_def) {
 	iso_graphics* graphics = iso_alloc(sizeof(iso_graphics));
+
+	iso_log_info("Constructing iso_graphics api: `%s`.\n", iso_graphics_api_to_str(graphics_def.api));
 
 	__iso_load_memory_functions(graphics);
 
@@ -559,6 +579,8 @@ static iso_graphics* iso_graphics_new(iso_graphics_def graphics_def) {
 			break;
 	}
 
+	iso_log_sucess("Created iso_graphics:\n\tAPI: `%s`\n\n", iso_graphics_api_to_str(graphics_def.api));
+
 	return graphics;
 }
 
@@ -568,12 +590,16 @@ static iso_graphics* iso_graphics_new(iso_graphics_def graphics_def) {
  */
 
 static void iso_graphics_delete(iso_graphics* graphics) {
+	iso_log_info("Deleting iso_graphics\n");
+
 	iso_hmap_delete(graphics->vertex_buffers);
 	iso_hmap_delete(graphics->index_buffers);
 	iso_hmap_delete(graphics->shaders);
 	iso_hmap_delete(graphics->render_pipelines);
 	iso_hmap_delete(graphics->textures);
 	iso_free(graphics);
+
+	iso_log_sucess("Deleted iso_graphics\n\n");
 }
 
 #endif // __ISO_GRAPHICS_H__

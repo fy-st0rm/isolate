@@ -36,7 +36,8 @@ iso_app_def iso_init() {
 
 	return (iso_app_def) {
 		.window_def   = window_def,
-		.graphics_def = graphics_def
+		.graphics_def = graphics_def,
+		.fps = 60
 	};
 }
 

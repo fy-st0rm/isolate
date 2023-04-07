@@ -1,7 +1,7 @@
 {
 	"platform": "auto",
 	"isolate_path": "",
-
+	"build": "debug",
 	"out": "out",
 	"cc": "gcc",
 	"c_flags": [""],
