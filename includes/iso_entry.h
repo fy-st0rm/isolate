@@ -63,10 +63,12 @@ static int iso_run(int argc, char** argv) {
 	SDL_Event event;
 
 	// Frame handler
-	f32 unit_frame = 1000.0f / app->fps;
+	f32 unit_frame = 1000.0f / app_def.fps;
 	f32 dt = 0.0f;
+	f32 frame_cnt = 0.0f;
 
 	// Main loop
+	time_t start_time = time(NULL);
 	while (app->state == ISO_APP_RUNNING) {
 		u32 start_tick = SDL_GetTicks();
 
@@ -77,6 +79,7 @@ static int iso_run(int argc, char** argv) {
 
 		// Update handler
 		iso_update(app, dt);
+		frame_cnt++;
 
 		// Capping the frames
 		dt = SDL_GetTicks() - start_tick;
@@ -89,6 +92,14 @@ static int iso_run(int argc, char** argv) {
 
 		// Updating the graphics
 		app->graphics->api.update(app->window);
+
+		// Counting fps
+		time_t final_time = time(NULL);
+		if (final_time - start_time == 1) {
+			app->fps = frame_cnt;
+			start_time = final_time;
+			frame_cnt = 0;
+		}
 	}
 
 	// Exit of the app

@@ -69,7 +69,7 @@ static iso_app* iso_app_new(iso_app_def app_def) {
 	// Initializing the app state
 	app->state = ISO_APP_RUNNING;
 
-	app->fps = app_def.fps;
+	app->fps = 0.0f;
 
 	iso_log_sucess("Created application\n\n");
 	return app;

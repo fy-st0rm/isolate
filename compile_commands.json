@@ -26,7 +26,7 @@
     },
     {
         "directory": "/home/st0rm/Documents/c_projects/isolate/",
-        "command": "gcc  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c",
+        "command": "gcc  -DISO_BUILD_DEBUG  -Iincludes/ -I/usr/include/ -Iisolate/includes -o /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c.o -c /home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c",
         "file": "/home/st0rm/Documents/c_projects/isolate/tests/graphics_test/texture_test/texture_test.c"
     },
     {
