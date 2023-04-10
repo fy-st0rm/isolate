@@ -403,6 +403,7 @@ struct iso_graphics {
 
 		// Updates
 		void (*vertex_buffer_update)  (iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def);    // Function to update the vertex buffer data
+		void (*index_buffer_update)   (iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def);    // Function to update the index  buffer data
 		void (*uniform_set)           (iso_graphics* graphics, iso_graphics_uniform_def def);                      // Function to set the uniform
 		void (*render_pipeline_begin) (iso_graphics* graphics, char* name);                                        // Function to bind all the buffers to prepare for rendering
 		void (*render_pipeline_end)   (iso_graphics* graphics, char* name, i32 indices_cnt);                       // Function to do a draw call for render pipeline
@@ -536,6 +537,7 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 
 	// Updates
 	graphics->api.vertex_buffer_update  = iso_gl_vertex_buffer_update;
+	graphics->api.index_buffer_update   = iso_gl_index_buffer_update;
 	graphics->api.uniform_set           = iso_gl_uniform_set;
 	graphics->api.render_pipeline_begin = iso_gl_render_pipeline_begin;
 	graphics->api.render_pipeline_end   = iso_gl_render_pipeline_end;

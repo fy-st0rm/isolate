@@ -38,18 +38,31 @@ iso_app_def iso_init() {
 	};
 }
 
-void iso_start(iso_app* app) {
-	// Triangle points and indices
-	f32 vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f
-	};
-	
-	u32 indices[] = {
-		0, 1, 2
-	};
+// Triangle points and indices
+f32 vertices[] = {
+	 0.0f,  0.5f, 0.0f,
+	-0.5f,  0.1f, 0.0f,
+	-0.2f, -0.5f, 0.0f,
+	 0.2f, -0.5f, 0.0f,
+	 0.5f,  0.1f, 0.0f,
 
+	 0.6f, -0.2f, 0.0f,
+	 0.6f, -0.9f, 0.0f,
+	 0.9f, -0.9f, 0.0f,
+	 0.9f, -0.2f, 0.0f,
+};
+
+u32 indices[] = {
+	0, 1, 2,
+	0, 2, 3,
+	0, 3, 4,
+
+	5, 6, 7,
+	5, 7, 8
+};
+
+
+void iso_start(iso_app* app) {
 	// Vertex buffer
 	iso_graphics_vertex_buffer_def vbd = {
 		.name  = "vbo",
@@ -119,7 +132,7 @@ void iso_update(iso_app* app, f32 dt) {
 				.type   = ISO_GRAPHICS_UNIFORM_VEC4
 			});
 	
-	app->graphics->api.render_pipeline_end(app->graphics, "pip", 3);
+	app->graphics->api.render_pipeline_end(app->graphics, "pip", sizeof(indices) / sizeof(indices[0]));
 }
 
 void iso_exit(iso_app* app) {

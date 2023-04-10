@@ -3,4 +3,13 @@
 [x] Logger for both Release and Debug build
 
 # TODO
+[ ] Add app_data variable to app struct to store client side data
+[ ] Add constructor and destructor of ecs components
+[ ] Add vector operators for math library
+
 [ ] A 2D renderer
+	[ ] Implement 2d mesh
+	[ ] Implement point lights, directional lights, ambient light
+	[ ] Implement shadows
+
+[ ] Implement SAT collision detection

@@ -585,6 +585,21 @@ static void iso_gl_vertex_buffer_update(iso_graphics* graphics, char* name, iso_
 }
 
 /*
+ * @brief Function to update opengl index buffer data
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the index buffer
+ * @param def      = iso_graphics_buffer_update_def struct
+ */
+
+static void iso_gl_index_buffer_update(iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def) {
+	iso_graphics_index_buffer* ibo;
+	iso_hmap_get(graphics->index_buffers, name, ibo);
+
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo->id));
+	GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, def.start_sz, def.end_sz, def.data));
+}
+
+/*
  * @brief Function to set the opengl uniform
  * @param graphics = Pointer to the iso_graphics
  * @param def      = iso_graphics_unform_def struct
