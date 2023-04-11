@@ -388,9 +388,9 @@ static iso_entity iso_entity_new(iso_ecs* ecs) {
 	ecs->entity_cnt++;
 
 	// Generating random entity id
-	iso_entity id = rand_range(0, ecs->max_entity_cnt);
+	iso_entity id = iso_rand_range(0, ecs->max_entity_cnt);
 	do {
-		id = rand_range(0, ecs->max_entity_cnt);
+		id = iso_rand_range(0, ecs->max_entity_cnt);
 	} while (ecs->slots[id] != FREE);
 
 	// Making the slot occupied

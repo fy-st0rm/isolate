@@ -1,6 +1,27 @@
 #define ISO_IMPLEMENTATION
 #include "isolate.h"
 
+void savePPM(const char* filename, i32 width, i32 height, const unsigned char* pixels) {
+    FILE* file = fopen(filename, "w");
+
+    if (!file) {
+        printf("Failed to open file: %s\n", filename);
+        return;
+    }
+
+    // Write the PPM header
+    fprintf(file, "P6\n");
+    fprintf(file, "%d %d\n", width, height);
+    fprintf(file, "255\n");
+
+    // Write the pixel data
+    fwrite(pixels, 4 * width, height, file); // Assuming RGB format
+
+    fclose(file);
+
+    printf("PPM image saved to: %s\n", filename);
+}
+
 static char* vertex_shader = "#version 460 core\n"
 "\n"
 "layout(location = 0) in vec3 in_position; \n"
@@ -132,6 +153,16 @@ void iso_start(iso_app* app) {
 	};
 
 	iso_graphics_render_pipeline* pip = app->graphics->api.render_pipeline_new(app->graphics, pipeline_def);
+
+	iso_graphics_frame_buffer* fbo = app->graphics->api.frame_buffer_new(
+			app->graphics,
+			(iso_graphics_frame_buffer_def) {
+				.name = "fbo",
+				.width = 800,
+				.height = 600,
+				.format = GL_RGBA
+			}
+	);
 }
 
 void iso_event(iso_app* app, SDL_Event event) {
@@ -144,16 +175,71 @@ void iso_update(iso_app* app, f32 dt) {
 	app->graphics->api.clear_window(app->window, (iso_color) { 0, 0.5, 0.5, 1 });
 
 	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
+	app->graphics->api.frame_buffer_bind(app->graphics, "fbo");
+
+	app->graphics->api.shader_bind(app->graphics, "shader");
+	app->graphics->api.uniform_set(app->graphics, (iso_graphics_uniform_def) {
+				.name   = "tex",
+				.shader = app->graphics->memory.get_shader(app->graphics, "shader"),
+				.data   = &(iso_graphics_sampler_def) { 
+								.count    = 1,
+								.samplers = &app->graphics->memory.get_texture(app->graphics, "image")->id
+							},
+				.type   = ISO_GRAPHICS_UNIFORM_SAMPLER2D
+			});
+
 	app->graphics->api.texture_bind(app->graphics, "image");
 	app->graphics->api.render_pipeline_end(app->graphics, "pip", 6);
+	app->graphics->api.frame_buffer_unbind(app->graphics, "fbo");
+
+	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
+
+	app->graphics->api.frame_buffer_bind(app->graphics, "fbo");
+	GLCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+	iso_graphics_frame_buffer* fbo = app->graphics->memory.get_frame_buffer(app->graphics, "fbo");
+	//GLCall(glBindTextureUnit(fbo->texture_id, fbo->texture_id));
+
+	iso_log_info("Sending\n");
+	app->graphics->api.shader_bind(app->graphics, "shader");
+	app->graphics->api.uniform_set(app->graphics, (iso_graphics_uniform_def) {
+				.name   = "tex",
+				.shader = app->graphics->memory.get_shader(app->graphics, "shader"),
+				.data   = &(iso_graphics_sampler_def) { 
+								.count    = 1,
+								.samplers = &fbo->texture_id
+							},
+				.type   = ISO_GRAPHICS_UNIFORM_INT
+			});
+
+	iso_log_info("Sent\n");
+	glActiveTexture(fbo->texture_id);
+	glBindTexture(GL_TEXTURE_2D, fbo->texture_id); // textureID is the ID of the framebuffer texture
+
+	////app->graphics->api.texture_bind(app->graphics, "image");
+	app->graphics->api.render_pipeline_end(app->graphics, "pip", 6);
+
+	app->graphics->api.frame_buffer_unbind(app->graphics, "fbo");
 }
 
 void iso_exit(iso_app* app) {
+	app->graphics->api.frame_buffer_bind(app->graphics, "fbo");
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+	GLubyte* pixels = (GLubyte*) iso_alloc(800 * 600 * 4); // Assuming RGB format
+	glReadPixels(0, 0, 800, 600, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	app->graphics->api.frame_buffer_unbind(app->graphics, "fbo");
+
+	savePPM("output.ppm", 800, 600, pixels);
+
+	iso_free(pixels);
+
 	app->graphics->api.vertex_buffer_delete(app->graphics, "vbo");
 	app->graphics->api.index_buffer_delete(app->graphics, "ibo");
 	app->graphics->api.shader_delete(app->graphics, "shader");
 	app->graphics->api.texture_delete(app->graphics, "image");
 	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
+	app->graphics->api.frame_buffer_delete(app->graphics, "fbo");
 }
 
 int main(int argc, char** argv) {

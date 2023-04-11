@@ -1,6 +1,7 @@
 #ifndef __ISO_OPENGL_BACKEND_H__
 #define __ISO_OPENGL_BACKEND_H__
 
+#include "iso_util/iso_hash_map.h"
 #include "iso_util/iso_includes.h"
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_log.h"
@@ -153,6 +154,7 @@ static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphi
 	}
 
 	GLCall(glBufferData(GL_ARRAY_BUFFER, def.size, def.data, mode));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 	// Saving the graphics memory
 	iso_hmap_add(graphics->vertex_buffers, vbo->name, vbo);
@@ -191,6 +193,7 @@ static iso_graphics_index_buffer* iso_gl_index_buffer_new(iso_graphics* graphics
 	}
 
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, def.size, def.data, mode));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
 	// Saving the graphics memory
 	iso_hmap_add(graphics->index_buffers, ibo->name, ibo);
@@ -349,6 +352,11 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 	GLCall(glGenVertexArrays(1, &pip->id));
 	GLCall(glBindVertexArray(pip->id));
 
+	// Binding the buffers
+	graphics->api.vertex_buffer_bind(graphics, pip->buffers.vbo->name);
+	graphics->api.index_buffer_bind(graphics, pip->buffers.ibo->name);
+	graphics->api.shader_bind(graphics, pip->buffers.shader->name);
+
 	// Calculating stride
 	size_t stride = 0;
 	for (i32 i = 0; i < def.amt; i++) {
@@ -369,6 +377,12 @@ static iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* gr
 		// Calculating offsets
 		offset += layout.amt * iso_graphics_get_type_size(layout.type);
 	}
+
+	// Unbinding all
+	GLCall(glBindVertexArray(0));
+	graphics->api.vertex_buffer_unbind(graphics);
+	graphics->api.index_buffer_unbind(graphics);
+	graphics->api.shader_unbind(graphics);
 
 	// Saving in graphics memory
 	iso_hmap_add(graphics->render_pipelines, pip->name, pip);
@@ -565,6 +579,46 @@ static iso_graphics_texture* iso_gl_texture_new(iso_graphics* graphics, iso_grap
 	}
 }
 
+/*
+ * @brief Function to create new opengl frame buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param def      = iso_graphics_frame_buffer_def struct
+ * @return Returns the pointer to the iso_graphics_frame_buffer
+ */
+
+static iso_graphics_frame_buffer* iso_gl_frame_buffer_new(iso_graphics* graphics, iso_graphics_frame_buffer_def def) {
+	iso_log_info("Constructing opengl_frame_buffer\n");
+
+	iso_graphics_frame_buffer* fbo = iso_alloc(sizeof(iso_graphics_frame_buffer));
+	iso_assert(strlen(def.name), "Name of frame buffer is not defined.\n");
+
+	// Initializing data
+	fbo->id = 0;
+	fbo->texture_id = 0;
+	fbo->name = iso_alloc(strlen(def.name));
+	strcpy(fbo->name, def.name);
+	fbo->width = def.width;
+	fbo->height = def.height;
+
+	// Setting up opengl frame buffer
+	GLCall(glGenFramebuffers(1, &fbo->id));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo->id));
+
+	// Generating texture for frame buffer
+	GLCall(glGenTextures(1, &fbo->texture_id));
+	GLCall(glBindTexture(GL_TEXTURE_2D, fbo->texture_id));
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, def.format, def.width, def.height, 0, def.format, GL_UNSIGNED_BYTE, NULL));
+	GLCall(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo->texture_id, 0));
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	// Saving in graphics memory
+	iso_hmap_add(graphics->frame_buffers, fbo->name, fbo);
+	iso_log_sucess("Created opengl_frame_buffer:\n\tName: `%s`\n\tID: %d\n\tTexture ID: %d\n\tRes: %dx%d\n", fbo->name, fbo->id, fbo->texture_id, fbo->width, fbo->height);
+
+	return fbo;
+}
+
 /*=========================
  * Buffer updates
  *=======================*/
@@ -611,7 +665,7 @@ static void iso_gl_uniform_set(iso_graphics* graphics, iso_graphics_uniform_def 
 
 	switch (def.type) {
 		case ISO_GRAPHICS_UNIFORM_INT:
-			GLCall(glUniform1i(u_loc, *((int*) def.data)));
+			GLCall(glUniform1i(u_loc, *((int*)def.data)));
 			break;
 		case ISO_GRAPHICS_UNIFORM_FLOAT:
 			GLCall(glUniform1f(u_loc, *((float*) def.data)));
@@ -741,6 +795,76 @@ static void iso_gl_texture_bind(iso_graphics* graphics, char* name) {
 	GLCall(glBindTextureUnit(texture->id, texture->id));
 }
 
+/*
+ * @brief Function to bind frame buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the frame buffer
+ */
+
+static void iso_gl_frame_buffer_bind(iso_graphics* graphics, char* name) {
+	iso_graphics_frame_buffer* fbo;
+	iso_hmap_get(graphics->frame_buffers, name, fbo);
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo->id));
+	//GLCall(glBindTextureUnit(fbo->texture_id, fbo->texture_id));
+	//GLCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+}
+
+/*=========================
+ * Buffer Unbinds
+ *=======================*/
+
+/*
+ * @brief Function to unbind vertex buffer
+ * @param graphics = Pointer to the iso_graphics
+ */
+
+static void iso_gl_vertex_buffer_unbind(iso_graphics* graphics) {
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
+
+/*
+ * @brief Function to unbind index buffer
+ * @param graphics = Pointer to the iso_graphics
+ */
+
+static void iso_gl_index_buffer_unbind(iso_graphics* graphics) {
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+/*
+ * @brief Function to unbind shader
+ * @param graphics = Pointer to the iso_graphics
+ */
+
+static void iso_gl_shader_unbind(iso_graphics* graphics) {
+	GLCall(glUseProgram(0));
+}
+
+/*
+ * @brief Function to unbind texture
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the texture
+ */
+
+static void iso_gl_texture_unbind(iso_graphics* graphics, char* name) {
+	iso_graphics_texture* texture;
+	iso_hmap_get(graphics->textures, name, texture);
+	GLCall(glBindTextureUnit(texture->id, 0));
+}
+
+/*
+ * @brief Function to unbind frame buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the frame buffer
+ */
+
+static void iso_gl_frame_buffer_unbind(iso_graphics* graphics, char* name) {
+	iso_graphics_frame_buffer* fbo;
+	iso_hmap_get(graphics->frame_buffers, name, fbo);
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	GLCall(glBindTextureUnit(fbo->texture_id, 0));
+}
+
 /*=========================
  * Buffer destruction
  *=======================*/
@@ -848,6 +972,28 @@ static void iso_gl_texture_delete(iso_graphics* graphics, char* name) {
 	iso_free(texture);
 
 	iso_log_sucess("Deleted opengl_texture: `%s`\n\n", name);
+}
+
+/*
+ * @brief Function to delete opengl frame buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the frame buffer
+ */
+
+static void iso_gl_frame_buffer_delete(iso_graphics* graphics, char* name) {
+	iso_log_info("Deleting opengl_frame_buffer\n");
+
+	iso_graphics_frame_buffer* fbo;
+	iso_hmap_get(graphics->frame_buffers, name, fbo);
+
+	GLCall(glDeleteFramebuffers(1, &fbo->id));
+	GLCall(glDeleteTextures(1, &fbo->texture_id));
+
+	iso_hmap_remove(graphics->frame_buffers, name);
+	iso_free(fbo->name);
+	iso_free(fbo);
+
+	iso_log_sucess("Deleted opengl_frame_buffer: `%s`\n\n", name);
 }
 
 #endif // __ISO_OPENGL_BACKEND_H__

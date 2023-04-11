@@ -6,7 +6,7 @@
 
 #define ISO_PI 3.14159
 #define iso_radians(x) x * ISO_PI / 180
-#define rand_range(l, u) rand() % (u - l + 1) + l
+#define iso_rand_range(l, u) rand() % (u - l + 1) + l
 
 /*====================
  * Vector math

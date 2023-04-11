@@ -332,6 +332,40 @@ typedef struct {
 
 
 /*====================
+ * Frame Buffers
+ *==================*/
+
+/*
+ * @brief Frame buffer definiton struct
+ * @mem name   = Name of the frame buffer
+ * @mem width  = Width of the frame buffer
+ * @mem height = Height of the frame buffer
+ * @mem format = frame buffer texture format
+ */
+
+typedef struct {
+	char name[256];
+	u32 width, height;
+	u32 format;
+} iso_graphics_frame_buffer_def;
+
+/*
+ * @brief Frame buffer struct
+ * @mem name           = Name of the frame buffer
+ * @mem id             = Frame buffer id
+ * @mem texture_id     = Frame buffer texture id
+ * @mem width, height  = Width and height of the frame buffer
+ */
+
+typedef struct {
+	char* name;
+	u32 id;
+	u32 texture_id;
+	u32 width, height;
+} iso_graphics_frame_buffer;
+
+
+/*====================
  * Graphics api
  *==================*/
 
@@ -373,6 +407,7 @@ typedef struct {
  * @mem shaders          = Hashmap to store shader struct pointer.
  * @mem render_pipelines = Hashmap to store render pipeline struct pointer.
  * @mem textures         = Hashmap to store texture struct pointer.
+ * @mem frame_buffers    = Hashmap to store frame buffer struct pointer.
  * @mem api              = A structure that holds function pointers to the specified graphics api.
  * @mem memory           = A structure that holds function pointers to the memory getters and setters.
  */
@@ -388,6 +423,7 @@ struct iso_graphics {
 	iso_hmap_def(char*, iso_graphics_shader*,          ISO_GRAPHICS_MEM_SIZE) shaders;
 	iso_hmap_def(char*, iso_graphics_render_pipeline*, ISO_GRAPHICS_MEM_SIZE) render_pipelines;
 	iso_hmap_def(char*, iso_graphics_texture*,         ISO_GRAPHICS_MEM_SIZE) textures;
+	iso_hmap_def(char*, iso_graphics_frame_buffer*,    ISO_GRAPHICS_MEM_SIZE) frame_buffers;
 
 	struct {
 		void (*init)         (iso_window* window);                   // Initializes graphics api
@@ -400,6 +436,7 @@ struct iso_graphics {
 		iso_graphics_shader*          (*shader_new)          (iso_graphics* graphics, iso_graphics_shader_def def);           // Function to create shader
 		iso_graphics_render_pipeline* (*render_pipeline_new) (iso_graphics* graphics, iso_graphics_render_pipeline_def def);  // Function to create render pipeline
 		iso_graphics_texture*         (*texture_new)         (iso_graphics* graphics, iso_graphics_texture_def def);          // Function to create texture
+		iso_graphics_frame_buffer*    (*frame_buffer_new)    (iso_graphics* graphics, iso_graphics_frame_buffer_def def);     // Function to create frame buffer
 
 		// Updates
 		void (*vertex_buffer_update)  (iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def);    // Function to update the vertex buffer data
@@ -414,6 +451,14 @@ struct iso_graphics {
 		void (*index_buffer_bind)  (iso_graphics* graphics, char* name);    // Function to bind index buffer
 		void (*shader_bind)        (iso_graphics* graphics, char* name);    // Function to bind shader
 		void (*texture_bind)       (iso_graphics* graphics, char* name);    // Function to bind texture
+		void (*frame_buffer_bind)  (iso_graphics* graphics, char* name);    // Function to bind frame buffer
+		
+		// Unbinds
+		void (*vertex_buffer_unbind) (iso_graphics* graphics);                // Function to unbind vertex buffer
+		void (*index_buffer_unbind)  (iso_graphics* graphics);                // Function to unbind index buffer
+		void (*shader_unbind)        (iso_graphics* graphics);                // Function to unbind shader
+		void (*texture_unbind)       (iso_graphics* graphics, char* name);    // Function to unbind texture
+		void (*frame_buffer_unbind)  (iso_graphics* graphics, char* name);    // Function to unbind frame buffer
 
 		// Destruction
 		void (*vertex_buffer_delete)   (iso_graphics* graphics, char* name);   // Function to delete vertex buffer
@@ -421,6 +466,7 @@ struct iso_graphics {
 		void (*shader_delete)          (iso_graphics* graphics, char* name);   // Function to delete shader
 		void (*render_pipeline_delete) (iso_graphics* graphics, char* name);   // Function to delete render pipeline
 		void (*texture_delete)         (iso_graphics* graphics, char* name);   // Function to delete texture
+		void (*frame_buffer_delete)    (iso_graphics* graphics, char* name);   // Function to delete frame buffer
 	} api;
 
 	struct {
@@ -429,6 +475,7 @@ struct iso_graphics {
 		iso_graphics_shader*          (*get_shader)          (iso_graphics* graphics, char* name);
 		iso_graphics_render_pipeline* (*get_render_pipeline) (iso_graphics* graphics, char* name);
 		iso_graphics_texture*         (*get_texture)         (iso_graphics* graphics, char* name);
+		iso_graphics_frame_buffer*    (*get_frame_buffer)    (iso_graphics* graphics, char* name);
 	} memory;
 };
 
@@ -498,6 +545,19 @@ static iso_graphics_texture* __iso_graphics_get_texture(iso_graphics* graphics, 
 }
 
 /*
+ * @brief Function to get saved frame_buffer
+ * @param graphics = Pointer to the iso_graphics
+ * @param name     = Name of the frame_buffer
+ * @return Returns the frame_buffer pointer
+ */
+
+static iso_graphics_frame_buffer* __iso_graphics_get_frame_buffer(iso_graphics* graphics, char* name) {
+	iso_graphics_frame_buffer* fbo;
+	iso_hmap_get(graphics->frame_buffers, name, fbo);
+	return fbo;
+}
+
+/*
  * @brief Function to load the memory functions
  * @param graphics = Pointer to the iso_graphics
  */
@@ -508,6 +568,7 @@ static void __iso_load_memory_functions(iso_graphics* graphics) {
 	graphics->memory.get_shader          = __iso_graphics_get_shader;
 	graphics->memory.get_render_pipeline = __iso_graphics_get_render_pipeline;
 	graphics->memory.get_texture         = __iso_graphics_get_texture;
+	graphics->memory.get_frame_buffer    = __iso_graphics_get_frame_buffer;
 }
 
 /*
@@ -534,6 +595,7 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 	graphics->api.shader_new          = iso_gl_shader_new;
 	graphics->api.render_pipeline_new = iso_gl_render_pipeline_new;
 	graphics->api.texture_new         = iso_gl_texture_new;
+	graphics->api.frame_buffer_new    = iso_gl_frame_buffer_new;
 
 	// Updates
 	graphics->api.vertex_buffer_update  = iso_gl_vertex_buffer_update;
@@ -548,6 +610,14 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 	graphics->api.index_buffer_bind  = iso_gl_index_buffer_bind;
 	graphics->api.shader_bind        = iso_gl_shader_bind;
 	graphics->api.texture_bind       = iso_gl_texture_bind;
+	graphics->api.frame_buffer_bind  = iso_gl_frame_buffer_bind;
+
+	// Unbinds
+	graphics->api.vertex_buffer_unbind = iso_gl_vertex_buffer_unbind;
+	graphics->api.index_buffer_unbind  = iso_gl_index_buffer_unbind;
+	graphics->api.shader_unbind        = iso_gl_shader_unbind;
+	graphics->api.texture_unbind       = iso_gl_texture_unbind;
+	graphics->api.frame_buffer_unbind  = iso_gl_frame_buffer_unbind;
 
 	// Destructions
 	graphics->api.vertex_buffer_delete   = iso_gl_vertex_buffer_delete;
@@ -555,6 +625,7 @@ static void __iso_load_opengl_functions(iso_graphics* graphics) {
 	graphics->api.shader_delete          = iso_gl_shader_delete;
 	graphics->api.render_pipeline_delete = iso_gl_render_pipeline_delete;
 	graphics->api.texture_delete         = iso_gl_texture_delete;
+	graphics->api.frame_buffer_delete    = iso_gl_frame_buffer_delete;
 
 	iso_log_sucess("Loaded iso_opengl_backend functions\n");
 }
@@ -599,6 +670,7 @@ static void iso_graphics_delete(iso_graphics* graphics) {
 	iso_hmap_delete(graphics->shaders);
 	iso_hmap_delete(graphics->render_pipelines);
 	iso_hmap_delete(graphics->textures);
+	iso_hmap_delete(graphics->frame_buffers);
 	iso_free(graphics);
 
 	iso_log_sucess("Deleted iso_graphics\n\n");
