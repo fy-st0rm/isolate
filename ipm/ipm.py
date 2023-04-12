@@ -2,6 +2,7 @@
 import sys
 from config import *
 from builder import *
+import subprocess
 
 
 def print_help():
@@ -55,6 +56,13 @@ for cmd in sys.argv:
 
 		print("Building...")
 		builder.compile(config_file)
+
+		# Executing the program
+		args = sys.argv[idx+1:]
+		exec_path = config_file.out_dir + config_file.slash + config_file.out[config_file.platform]
+		subprocess.Popen([exec_path] + args, cwd=config_file.out_dir, stdout=sys.stdout, stderr=sys.stderr)
+
+		sys.exit()
 
 	else:
 		print("Unknown command:", cmd)

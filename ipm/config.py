@@ -95,12 +95,12 @@ class IpmConfig:
 				"mingw32", "SDL2main", "SDL2",
 				"SDL2_image", "m", "glu32",
 				"opengl32", "User32", "Gdi32",
-				"Shell32", "glew32"
+				"Shell32", "glew32", "isolate"
 			],
 
 			PLAT_LINUX    : [
 				"SDL2main", "SDL2", "SDL2_image", 
-				"m", "GL", "GLU", "GLEW"
+				"m", "GL", "GLU", "GLEW", "isolate"
 			]
 		}
 
@@ -119,16 +119,21 @@ class IpmConfig:
 			PLAT_WINDOWS: [
 				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}",
 				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}"
+				f"{isolate_path}{self.slash}bin{self.slash}"
 			],
-			PLAT_LINUX    : []
+			PLAT_LINUX    : [
+				f"{isolate_path}{self.slash}bin{self.slash}"
+			]
 		}
 
 		__isolate_vendor_dlls = {
 			PLAT_WINDOWS: [
 				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}",
 				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}"
+				f"{isolate_path}{self.slash}bin{self.slash}"
 			],
 			PLAT_LINUX  : [
+				f"{isolate_path}{self.slash}bin{self.slash}"
 			]
 		}
 
@@ -146,8 +151,8 @@ class IpmConfig:
 			"c_files": [],
 
 			"c_flags":{
-				PLAT_WINDOWS: [],
-				PLAT_LINUX  : []
+				PLAT_WINDOWS: ["-Wl,-rpath='$ORIGIN'"],
+				PLAT_LINUX  : ["-Wl,-rpath='$ORIGIN'"]
 			},
 
 			"include_path": {

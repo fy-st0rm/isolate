@@ -1,4 +1,12 @@
 .cache/
+
+ipm/__pycache__/
+
 isolate/bin/
 isolate/.cache/
-ipm/__pycache__/
+isolate/compile_commands.json
+
+testbed/bin/
+testbed/.cache/
+testbed/compile_commands.json
+
