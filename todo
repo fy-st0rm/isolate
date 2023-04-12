@@ -1,9 +1,12 @@
 # Completed
 [x] Entity Component System
 [x] Logger for both Release and Debug build
+[x] Create a proper building tool (setsup isolate projects, links properly, builds properly)
 
 # Argent
 [ ] Rework the engine to compile to dll/so and rework in examples and some sytnax (hashmap, graphics)
+	[ ] Implement Scene system instead of current functions
+
 
 # TODO
 [ ] Add app_data variable to app struct to store client side data

@@ -1,0 +1,65 @@
+{
+	"build_mode": "debug",
+	"isolate_path": ".",
+	"cc": "gcc",
+	"out": {
+		"windows": "isolate.dll",
+		"linux": "libisolate.so"
+	},
+	"c_files": [
+		"src/iso_app/iso_app.c",
+		"src/iso_util/iso_memory.c"
+	],
+	"c_flags": {
+		"windows": ["-shared", "-fPIC"],
+		"linux": ["-shared", "-fPIC"]
+	},
+	"include_path": {
+		"windows": [
+			"./src/",
+			"./vendor/GLEW/include/",
+			"./vendor/SDL2_64bit/include/"
+		],
+		"linux": [
+			"./src/"
+		]
+	},
+	"lib_path": {
+		"windows": [
+			"./vendor/GLEW/lib/",
+			"./vendor/SDL2_64bit/lib/"
+		],
+		"linux": []
+	},
+	"libs": {
+		"windows": [
+			"mingw32",
+			"SDL2main",
+			"SDL2",
+			"SDL2_image",
+			"m",
+			"glu32",
+			"opengl32",
+			"User32",
+			"Gdi32",
+			"Shell32",
+			"glew32"
+		],
+		"linux": [
+			"SDL2main",
+			"SDL2",
+			"SDL2_image",
+			"m",
+			"GL",
+			"GLU",
+			"GLEW"
+		]
+	},
+	"dll_path": {
+		"windows": [
+			"./vendor/GLEW/bin/",
+			"./vendor/SDL2_64bit/bin/"
+		],
+		"linux": []
+	}
+}
