@@ -39,7 +39,7 @@ typedef enum {
  */
 
 typedef struct {
-	char* title;
+	iso_str title;
 	i32 width, height;
 	iso_window_flags flags;
 } iso_window_def;

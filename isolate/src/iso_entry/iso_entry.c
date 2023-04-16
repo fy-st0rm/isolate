@@ -23,18 +23,18 @@ i32 iso_run(i32 argc, char** argv) {
 	f32 frame_cnt = 0.0f;
 
 	// Checking if scene exists or not
-	iso_assert(app->scene_manager->current_scene->len != 0, "No scene created. At least one scene is required.\n");
+	iso_assert(iso_str_len(app->scene_manager->current_scene) != 0, "No scene created. At least one scene is required.\n");
 
 	// Main loop
 	time_t start_time = time(NULL);
 	while (app->state == ISO_APP_RUNNING) {
 		u32 start_tick = SDL_GetTicks();
 
-		iso_assert(app->scene_manager->current_scene->len != 0, "No active scene found. Try switching scenes.\n");
+		iso_assert(iso_str_len(app->scene_manager->current_scene) != 0, "No active scene found. Try switching scenes.\n");
 
 		// Getting the current scene
 		iso_scene* scene;
-		iso_hmap_get(app->scene_manager->scenes, app->scene_manager->current_scene->c_str, scene);
+		iso_hmap_get(app->scene_manager->scenes, app->scene_manager->current_scene, scene);
 
 		// Event handler
 		while (SDL_PollEvent(&event)) {

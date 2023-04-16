@@ -5,6 +5,11 @@
 
 typedef struct {
 	iso_app* app;
+
+	iso_graphics_vertex_buffer* vbo;
+	iso_graphics_index_buffer*  ibo;
+	iso_graphics_shader* shader;
+	iso_graphics_render_pipeline* pip;
 } testbed;
 
 void testbed_new(iso_scene* scene);

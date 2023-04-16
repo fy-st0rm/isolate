@@ -18,7 +18,10 @@ typedef struct {
 	u32 len;
 	u32 cap;
 } __iso_str_def;
-typedef __iso_str_def* iso_str;
+//typedef __iso_str_def* iso_str;
+
+
+typedef char* iso_str;
 
 
 /*
@@ -44,6 +47,23 @@ ISO_API iso_str __iso_str_new(char* c_str, char* file, u32 line);
  */
 
 ISO_API void iso_str_delete(iso_str str);
+
+
+/*
+ * @brief Function to get the length of string
+ * @param str = iso_str
+ * @return Returns length
+ */
+
+ISO_API i32 iso_str_len(iso_str str);
+
+/*
+ * @brief Function to get the total capacity of string
+ * @param str = iso_str
+ * @return Returns capacity
+ */
+
+ISO_API i32 iso_str_cap(iso_str str);
 
 
 /*

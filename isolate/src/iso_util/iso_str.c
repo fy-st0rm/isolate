@@ -2,87 +2,115 @@
 
 #define STR_EXTEND_AMT 10
 
-iso_str __iso_str_new(char* c_str, char* file, u32 line) {
-	iso_str str = __iso_alloc(sizeof(__iso_str_def), file, line);
-	u32 len = strlen(c_str);
 
-	str->len = len;
-	str->cap = len;
-	str->c_str = __iso_alloc(len, file, line);
-	strncpy(str->c_str, c_str, len);
-	str->c_str[str->len] = '\0';
+typedef enum {
+	ISO_STR_LEN = -1,
+	ISO_STR_CAP = -2
+} iso_str_meta;
+
+#define LEN ISO_STR_LEN * sizeof(iso_str_meta)
+#define CAP ISO_STR_CAP * sizeof(iso_str_meta)
+
+
+iso_str __iso_str_new(char* c_str, char* file, u32 line) {
+	u32 meta_size = 2 * sizeof(iso_str_meta);
+	u32 len = strlen(c_str);
+	u32 size = len + meta_size;
+
+	iso_str str = __iso_alloc(size, file, line);
+	str += meta_size;
+
+	str[ISO_STR_LEN * sizeof(iso_str_meta)] = len;
+	str[ISO_STR_CAP * sizeof(iso_str_meta)] = len;
+
+	strncpy(str, c_str, len);
+	str[len] = '\0';
 
 	return str;
 }
 
 void iso_str_delete(iso_str str) {
-	iso_free(str->c_str);
+	u32 meta_size = 2 * sizeof(iso_str_meta);
+	str -= meta_size;
 	iso_free(str);
 }
 
+i32 iso_str_len(iso_str str) {
+	return (i32) str[LEN];
+}
+
+i32 iso_str_cap(iso_str str) {
+	return (i32) str[CAP];
+}
+
 void iso_str_clear(iso_str str) {
-	iso_assert(str, "String is NULL\n");
-	memset(str->c_str, 0, str->cap);
-	str->len = 0;
-	str->c_str[str->len] = '\0';
+	memset(str, 0, iso_str_cap(str));
+	str[LEN] = 0;
+	str[iso_str_len(str)] = '\0';
 }
 
 void iso_extend_str(iso_str str, u32 amt) {
-	iso_assert(str, "String is NULL\n");
+	i32 cap = iso_str_cap(str);
+	i32 len = iso_str_len(str);
 
-	char* tmp = iso_alloc(str->cap);
-	strncpy(tmp, str->c_str, str->len);
+	char* tmp = iso_alloc(iso_str_cap(str));
+	strncpy(tmp, str, len);
+	iso_str_delete(str);
 
-	iso_free(str->c_str);
-	str->cap += amt;
+	cap += amt;
 
-	str->c_str = iso_alloc(str->cap);
-	strncpy(str->c_str, tmp, str->len);
+	// Creating new string
+	i32 meta_sz = 2 * sizeof(iso_str_meta);
+	i32 new_sz = cap + meta_sz ;
+	str = iso_alloc(new_sz);
+	str += meta_sz;
+
+	str[LEN] = len;
+	str[CAP] = cap;
+	strncpy(str, tmp, len);
+	str[len] = '\0';
 
 	iso_free(tmp);
 }
 
+// FIXME: For some reason this function causes pointer of dest and src to be invalid or something.
 void iso_str_cpy(iso_str dest, iso_str src) {
-	iso_assert(dest, "Destination string is NULL\n");
-	iso_assert(src, "Source string is NULL\n");
-
-	if (dest->cap <= src->len) {
-		iso_extend_str(dest, src->len + STR_EXTEND_AMT);
+	if (iso_str_cap(dest) <= iso_str_len(src)) {
+		iso_extend_str(dest, iso_str_len(src) + STR_EXTEND_AMT);
 	}
 
 	iso_str_clear(dest);
-	strncpy(dest->c_str, src->c_str, src->len);
-	dest->len = src->len;
+	strncpy(dest, src, iso_str_len(src));
+	dest[LEN] = iso_str_len(src);
 
-	dest->c_str[dest->len] = '\0';
+	dest[iso_str_len(dest)] = '\0';
 }
 
 void iso_str_cat(iso_str dest, iso_str src) {
-	iso_assert(dest, "Destination string is NULL\n");
-	iso_assert(src, "Source string is NULL\n");
+	i32 dc = iso_str_cap(dest);
+	i32 dl = iso_str_len(dest);
+	i32 sl = iso_str_len(src);
 
-	if (dest->cap <= dest->len + src->len) {
-		u32 diff = (dest->len + src->len) - dest->cap;
+	if (dc <= dl + sl) {
+		i32 diff = (dl + sl) - dc;
 		iso_extend_str(dest, diff + STR_EXTEND_AMT);
 	}
 
-	strcat(dest->c_str, src->c_str);
-	dest->len += src->len;
-	dest->c_str[dest->len] = '\0';
+	strncat(dest, src, sl);
+
+	dl += sl;
+	dest[LEN] = dl;
+	dest[dl] = '\0';
 }
 
 b8 iso_str_cmp(iso_str str1, iso_str str2) {
-	iso_assert(str1, "First string is NULL\n");
-	iso_assert(str2, "Second string is NULL\n");
-
-	i32 res = strncmp(str1->c_str, str2->c_str, str1->len);
+	i32 res = strncmp(str1, str2, iso_str_len(str1));
 	if (res == 0) return true;
 	return false;
 }
 
 char iso_str_char_at(iso_str str, u32 i) {
-	iso_assert(str, "String is NULL\n");
-	iso_assert(i < str->len, "Index of `%d` used for string of length `%d`\n", i, str->len);
+	iso_assert(i < iso_str_len(str), "Index of `%d` used for string of length `%d`\n", i, iso_str_len(str));
 
-	return str->c_str[i];
+	return str[i];
 }

@@ -18,7 +18,7 @@ iso_window* iso_window_new(iso_window_def window_def) {
 
 	// Creating sdl window and renderer
 	window->sdl_window = iso_sdl_check_ptr(SDL_CreateWindow(
-		window->title->c_str, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		window->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		window->width, window->height, window_def.flags
 	));
 
@@ -27,7 +27,7 @@ iso_window* iso_window_new(iso_window_def window_def) {
 		SDL_RENDERER_ACCELERATED
 	));
 
-	iso_log_sucess("Created iso_window:\n\tTitle: `%s`\n\tRes: %dx%d\n", window->title->c_str, window->width, window->height);
+	iso_log_sucess("Created iso_window:\n\tTitle: `%s`\n\tRes: %dx%d\n", window->title, window->width, window->height);
 	return window;
 }
 

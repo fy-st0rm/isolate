@@ -33,7 +33,7 @@ struct iso_scene {
  */
 
 typedef struct {
-	char* name;
+	iso_str name;
 	void* scene_data;
 	void (*new)       (iso_scene* scene);
 	void (*delete)    (iso_scene* scene);
@@ -52,7 +52,7 @@ typedef struct {
 
 #define ISO_SCENE_MANAGER_MEM_SZ 100
 typedef struct {
-	iso_hmap_def(char*, iso_scene*, ISO_SCENE_MANAGER_MEM_SZ) scenes;
+	iso_hmap_def(iso_str, iso_scene*, ISO_SCENE_MANAGER_MEM_SZ) scenes;
 	iso_str current_scene;
 } iso_scene_manager;
 
@@ -92,7 +92,7 @@ ISO_API void iso_scene_new(iso_scene_manager* manager, iso_scene_def def);
  * @param name    = Name of the scene to delete
  */
 
-ISO_API void iso_scene_delete(iso_scene_manager* manager, char* name);
+ISO_API void iso_scene_delete(iso_scene_manager* manager, iso_str name);
 
 /*
  * @brief Function to change the scene
@@ -100,6 +100,6 @@ ISO_API void iso_scene_delete(iso_scene_manager* manager, char* name);
  * @param name    = Name of the scene to change
  */
 
-ISO_API void iso_scene_switch(iso_scene_manager* manager, char* name);
+ISO_API void iso_scene_switch(iso_scene_manager* manager, iso_str name);
 
 #endif // __ISO_SCENE_H__
