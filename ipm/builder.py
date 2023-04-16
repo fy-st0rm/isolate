@@ -30,7 +30,7 @@ class IpmBuilder:
 
 		# Making build directory
 		if not os.path.exists(config.out_dir):
-			os.mkdir(config.out_dir)
+			os.makedirs(config.out_dir)
 
 		# Building
 		files = " ".join(config.o_files)

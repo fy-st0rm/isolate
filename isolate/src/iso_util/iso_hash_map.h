@@ -113,6 +113,7 @@ static i64 __iso_hash_data(char* data) {
 			parent = *hmap->tmp_entry;                                       \
 			hmap->tmp_entry = &(*hmap->tmp_entry)->next;                     \
 		}                                                                  \
+		if (*hmap->tmp_entry != NULL) iso_free(*hmap->tmp_entry);          \
                                                                        \
 		/* Allocating the data at that index and assigning the value */    \
 		*hmap->tmp_entry = iso_alloc(sizeof(*hmap->data[idx]));            \

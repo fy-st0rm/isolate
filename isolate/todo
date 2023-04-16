@@ -2,18 +2,18 @@
 [x] Entity Component System
 [x] Logger for both Release and Debug build
 [x] Create a proper building tool (setsup isolate projects, links properly, builds properly)
+[X] Implement Scene system instead of current functions
+[x] Add app_data variable to app struct to store client side data
 
 # Argent
 [ ] Rework the engine to compile to dll/so and rework in examples and some sytnax (hashmap, graphics)
-	[ ] Implement Scene system instead of current functions
-
+	[ ] Add iso_str
+	[ ] Add vector operators for math library
+	[ ] Dynamic array
 
 # TODO
-[ ] Add app_data variable to app struct to store client side data
 [ ] Framebuffers
 [ ] Add constructor and destructor of ecs components
-[ ] Add vector operators for math library
-[ ] Dynamic array
 
 [ ] A 2D renderer
 	[ ] Implement 2d mesh

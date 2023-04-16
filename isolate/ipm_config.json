@@ -7,12 +7,22 @@
 		"linux": "libisolate.so"
 	},
 	"c_files": [
+		"src/iso_util/iso_memory.c",
+		"src/iso_util/iso_str.c",
 		"src/iso_app/iso_app.c",
-		"src/iso_util/iso_memory.c"
+		"src/iso_scene/iso_scene.c",
+		"src/iso_entry/iso_entry.c",
+		"src/iso_window/iso_window.c"
 	],
 	"c_flags": {
-		"windows": ["-shared", "-fPIC"],
-		"linux": ["-shared", "-fPIC"]
+		"windows": [
+			"-Wl,-rpath='$ORIGIN'",
+			"-shared", "-fPIC"
+		],
+		"linux": [
+			"-Wl,-rpath='$ORIGIN'",
+			"-shared", "-fPIC"
+		]
 	},
 	"include_path": {
 		"windows": [
@@ -21,15 +31,22 @@
 			"./vendor/SDL2_64bit/include/"
 		],
 		"linux": [
-			"./src/"
+			"./src/",
+			"./vendor/GLEW/include/",
+			"./vendor/SDL2_64bit/include/"
 		]
 	},
 	"lib_path": {
 		"windows": [
-			"./vendor/GLEW/lib/",
-			"./vendor/SDL2_64bit/lib/"
+			"./vendor/GLEW/lib/win/",
+			"./vendor/SDL2_64bit/lib/win/",
+			"./bin/win/"
 		],
-		"linux": []
+		"linux": [
+			"./vendor/GLEW/lib/linux/",
+			"./vendor/SDL2_64bit/lib/linux/",
+			"./bin/linux/"
+		]
 	},
 	"libs": {
 		"windows": [
@@ -43,7 +60,8 @@
 			"User32",
 			"Gdi32",
 			"Shell32",
-			"glew32"
+			"glew32",
+			"isolate"
 		],
 		"linux": [
 			"SDL2main",
@@ -52,14 +70,18 @@
 			"m",
 			"GL",
 			"GLU",
-			"GLEW"
+			"GLEW",
+			"isolate"
 		]
 	},
 	"dll_path": {
 		"windows": [
-			"./vendor/GLEW/bin/",
-			"./vendor/SDL2_64bit/bin/"
+			"./vendor/GLEW/bin/win/",
+			"./vendor/SDL2_64bit/bin/win/"
 		],
-		"linux": []
+		"linux": [
+			"./vendor/GLEW/bin/linux/",
+			"./vendor/SDL2_64bit/bin/linux/"
+		]
 	}
 }

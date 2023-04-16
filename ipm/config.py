@@ -62,6 +62,11 @@ class IpmConfig:
 			"release": "-DISO_BUILD_RELEASE"
 		}
 
+		self.__out_dir_name = {
+			PLAT_WINDOWS: "win",
+			PLAT_LINUX  : "linux"
+		}
+
 	def load(self, path):
 		self.project_dir = self.slash.join(os.path.abspath(path).split(self.slash)[:-1]) + self.slash
 		self.config      = json.load(open(path, "r"));
@@ -69,7 +74,7 @@ class IpmConfig:
 		# Loading basic settings
 		self.build_mode   = self.config["build_mode"]
 		self.isolate_path = self.config["isolate_path"] + self.slash
-		self.out_dir      = self.project_dir + "bin"
+		self.out_dir      = self.project_dir + "bin" + self.slash + self.__out_dir_name[self.platform]
 
 		self.out = self.config["out"]
 		self.cc  = self.config["cc"]
@@ -111,29 +116,35 @@ class IpmConfig:
 				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}"
 			],
 			PLAT_LINUX    : [
-				f"{isolate_path}{self.slash}src{self.slash}"
+				f"{isolate_path}{self.slash}src{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}include{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}"
 			]
 		}
 
 		__isolate_lib_path = {
 			PLAT_WINDOWS: [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}"
-				f"{isolate_path}{self.slash}bin{self.slash}"
+				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}win{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}win{self.slash}",
+				f"{isolate_path}{self.slash}bin{self.slash}win{self.slash}"
 			],
 			PLAT_LINUX    : [
-				f"{isolate_path}{self.slash}bin{self.slash}"
+				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}linux{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}linux{self.slash}",
+				f"{isolate_path}{self.slash}bin{self.slash}linux{self.slash}"
 			]
 		}
 
 		__isolate_vendor_dlls = {
 			PLAT_WINDOWS: [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}"
-				f"{isolate_path}{self.slash}bin{self.slash}"
+				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}win{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}win{self.slash}",
+				f"{isolate_path}{self.slash}bin{self.slash}win{self.slash}"
 			],
 			PLAT_LINUX  : [
-				f"{isolate_path}{self.slash}bin{self.slash}"
+				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}linux{self.slash}",
+				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}linux{self.slash}",
+				f"{isolate_path}{self.slash}bin{self.slash}linux{self.slash}"
 			]
 		}
 

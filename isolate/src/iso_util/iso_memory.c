@@ -72,16 +72,16 @@ void iso_print_mem_buffer() {
 
 
 void __iso_check_memory_bounds() {
-	if (manager->memory_size >= manager->memory_cap) {
+	if (manager->memory_cnt >= manager->memory_cap) {
 		// Create temp memory and copy the data
 		iso_memory_block* tmp_mem = (iso_memory_block*) malloc(sizeof(iso_memory_block) * (manager->memory_cap));
-		memcpy(tmp_mem, manager->memory, sizeof(iso_memory_block) * (manager->memory_size));
+		memcpy(tmp_mem, manager->memory, sizeof(iso_memory_block) * (manager->memory_cnt));
 		free(manager->memory);
 
 		// Delete old memory and create a new extended one and copy the data again
 		manager->memory_cap += ISO_MEMORY_CAP;
 		manager->memory = (iso_memory_block*) malloc(sizeof(iso_memory_block) * (manager->memory_cap));
-		memcpy(manager->memory, tmp_mem, sizeof(iso_memory_block) * (manager->memory_size));
+		memcpy(manager->memory, tmp_mem, sizeof(iso_memory_block) * (manager->memory_cnt));
 		free(tmp_mem);
 	}
 }

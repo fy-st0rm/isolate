@@ -15,7 +15,7 @@
  */
 
 static void iso_gl_init(iso_window* window) {
-	iso_log_info("Initializing opengl backend\n");
+	iso_log_info("Initializing opengl backend...\n");
 
 	// Setting some attributes
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -32,7 +32,7 @@ static void iso_gl_init(iso_window* window) {
 	GLCall(glEnable(GL_DEPTH_TEST));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-	iso_log_sucess("Opengl has been initialized\n\n");
+	iso_log_sucess("Opengl has been initialized\n");
 }
 
 /*
@@ -133,7 +133,7 @@ static char* iso_gl_shader_to_str(u32 type) {
  */
 
 static iso_graphics_vertex_buffer* iso_gl_vertex_buffer_new(iso_graphics* graphics, iso_graphics_vertex_buffer_def def) {
-	iso_log_info("Constructing opengl_vertex_buffer\n");
+	iso_log_info("Constructing opengl_vertex_buffer...\n");
 
 	iso_graphics_vertex_buffer* vbo = iso_alloc(sizeof(iso_graphics_vertex_buffer));
 

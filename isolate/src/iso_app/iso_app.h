@@ -6,6 +6,7 @@
 #include "iso_graphics/iso_graphics.h"
 #include "iso_util/iso_memory.h"
 #include "iso_camera/iso_camera.h"
+#include "iso_scene/iso_scene.h"
 
 /*
  * @brief Enum that holds the state of the app.
@@ -21,28 +22,34 @@ typedef enum {
  * @mem window_def   = Defination for construction of iso_window.
  * @mem graphics_def = Defination for construction of iso_graphics.
  * @mem fps          = Max fps for the app.
+ * @mem app_data       = Extra memory that user can use it
  */
 
 typedef struct {
 	iso_window_def   window_def;
 	iso_graphics_def graphics_def;
 	f32 fps;
+	void* app_data;
 } iso_app_def;
 
 /*
  * @brief Structure of the app.
- * @mem window     = Pointer to the iso_window.
- * @mem graphics   = Pointer to the iso_graphics.
- * @mem camera_man = Pointer to the iso_camera_manager.
- * @mem fps        = Max fps of the app.
+ * @mem window         = Pointer to the iso_window.
+ * @mem graphics       = Pointer to the iso_graphics.
+ * @mem camera_manager = Pointer to the iso_camera_manager.
+ * @mem scene_manager  = Pointer to the iso_scene_manager.
+ * @mem fps            = Fps of the app.
+ * @mem app_data       = Extra memory that user can use it
  */
 
-typedef struct {
+typedef struct{
 	iso_window*         window;
 	iso_graphics*       graphics;
-	iso_camera_manager* camera_man;
+	iso_camera_manager* camera_manager;
+	iso_scene_manager*  scene_manager;
 	iso_app_state state;
 	f32 fps;
+	void* app_data;
 } iso_app;
 
 /*

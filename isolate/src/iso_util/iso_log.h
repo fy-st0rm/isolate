@@ -20,7 +20,7 @@
 #define ISO_LOG_ERROR  91
 #define ISO_LOG_SUCESS 92
 #define ISO_LOG_WARN   93
-#define ISO_LOG_INFO   96
+#define ISO_LOG_INFO   95
 
 /*
  * @brief Loging macros
@@ -39,7 +39,7 @@
 
 #define iso_log(...)                              \
 	({                                              \
-		iso_log_typed(ISO_LOG_NORMAL, "[LOG]: ");     \
+		iso_log_typed(ISO_LOG_NORMAL, "[LOG]:    ");  \
 		iso_log_typed(ISO_LOG_NORMAL, __VA_ARGS__);   \
 	})
 
@@ -51,19 +51,19 @@
 
 #define iso_log_warn(...)                         \
 	({                                              \
-		iso_log_typed(ISO_LOG_WARN, "[WARN]: ");      \
+		iso_log_typed(ISO_LOG_WARN,   "[WARN]:   ");  \
 		iso_log_typed(ISO_LOG_WARN, __VA_ARGS__);     \
 	})
 
 #define iso_log_error(...)                        \
 	({                                              \
-		iso_log_typed(ISO_LOG_ERROR, "[ERROR]: ");    \
+		iso_log_typed(ISO_LOG_ERROR,  "[ERROR]:  ");  \
 		iso_log_typed(ISO_LOG_ERROR, __VA_ARGS__);    \
 	})
 
 #define iso_log_info(...)                         \
 	({                                              \
-		iso_log_typed(ISO_LOG_INFO, "[INFO]: ");      \
+		iso_log_typed(ISO_LOG_INFO,   "[INFO]:   ");  \
 		iso_log_typed(ISO_LOG_INFO, __VA_ARGS__);     \
 	})
 
