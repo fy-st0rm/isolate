@@ -1,3 +1,4 @@
+#include "iso_util/iso_str.h"
 #include "isolate.h"
 #include "testbed.h"
 

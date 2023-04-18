@@ -4,6 +4,7 @@
 #include "iso_defines.h"
 #include "iso_memory.h"
 
+// TODO: Take pointer for all the functions
 // TODO: Add slice and replace mechanisms
 
 /*
@@ -71,7 +72,7 @@ ISO_API i32 iso_str_cap(iso_str str);
  * @param str = iso_str struct
  */
 
-ISO_API void iso_str_clear(iso_str str);
+ISO_API void iso_str_clear(iso_str* str);
 
 
 /*
@@ -80,7 +81,7 @@ ISO_API void iso_str_clear(iso_str str);
  * @param amt = Amount to be extended
  */
 
-ISO_API void iso_str_extend(iso_str str, u32 amt);
+ISO_API void iso_str_extend(iso_str* str, u32 amt);
 
 
 /*
@@ -89,7 +90,7 @@ ISO_API void iso_str_extend(iso_str str, u32 amt);
  * @param src  = String to copy from
  */
 
-ISO_API void iso_str_cpy(iso_str dest, iso_str src);
+ISO_API void iso_str_cpy(iso_str* dest, iso_str src);
 
 
 /*
@@ -98,7 +99,7 @@ ISO_API void iso_str_cpy(iso_str dest, iso_str src);
  * @param src  = String to concat from
  */
 
-ISO_API void iso_str_cat(iso_str dest, iso_str src);
+ISO_API void iso_str_cat(iso_str* dest, iso_str src);
 
 
 /*

@@ -24,7 +24,7 @@ void iso_scene_manager_delete(iso_scene_manager* manager) {
 void iso_scene_manager_reset(iso_scene_manager* manager) {
 	iso_log_info("Reseting current scene...\n");
 
-	iso_str_clear(manager->current_scene);
+	iso_str_clear(&manager->current_scene);
 
 	iso_log_sucess("Reseted current scene.\n");
 }
