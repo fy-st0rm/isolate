@@ -3,6 +3,28 @@
 
 #include "isolate.h"
 
+static char* vert_shader = 
+      "#version 440 core\n"
+      "\n"
+      "layout(location = 0) in vec4 position;\n"
+      "void main()\n"
+      "{\n"
+      ""
+      " gl_Position =  position;"
+      ""
+      ""
+      "}\n";
+
+static char* frag_shader = 
+      "#version 440 core\n"
+      "\n"
+      "layout(location = 0) out vec4 color;"
+      "void main()\n"
+      "{\n"
+      ""
+      "color = vec4(1.0, 0.0, 0.0, 1.0);\n"
+      "}\n";
+
 typedef struct {
 	iso_app* app;
 

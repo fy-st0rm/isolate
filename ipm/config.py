@@ -1,6 +1,7 @@
 import json
 import platform
 import os
+from common import *
 
 """
 
@@ -43,18 +44,11 @@ Config file example:
 
 """
 
-PLAT_WINDOWS    = "windows"
-PLAT_LINUX      = "linux"
-DEF_CONFIG_NAME = "ipm_config.json"
-CMP_CMDS_FILE   = "compile_commands.json"
+
 
 class IpmConfig:
 	def __init__(self):
 		self.platform = platform.system().lower()
-		if self.platform == PLAT_WINDOWS:
-			self.slash = "\\"
-		elif self.platform == PLAT_LINUX:
-			self.slash = "/"
 
 		# Defaults
 		self.__build_modes = {
@@ -68,13 +62,13 @@ class IpmConfig:
 		}
 
 	def load(self, path):
-		self.project_dir = self.slash.join(os.path.abspath(path).split(self.slash)[:-1]) + self.slash
+		self.project_dir = SLASH[self.platform].join(os.path.abspath(path).split(SLASH[self.platform])[:-1]) + SLASH[self.platform]
 		self.config      = json.load(open(path, "r"));
 
 		# Loading basic settings
 		self.build_mode   = self.config["build_mode"]
-		self.isolate_path = self.config["isolate_path"] + self.slash
-		self.out_dir      = self.project_dir + "bin" + self.slash + self.__out_dir_name[self.platform]
+		self.isolate_path = self.config["isolate_path"][self.platform] + SLASH[self.platform]
+		self.out_dir      = self.project_dir + "bin" + SLASH[self.platform] + self.__out_dir_name[self.platform]
 
 		self.out = self.config["out"]
 		self.cc  = self.config["cc"]
@@ -95,6 +89,13 @@ class IpmConfig:
 		self.dll_path     = self.config["dll_path"]
 
 	def generate_default(self, project_name, project_path, isolate_path):
+		isolate_path_win = isolate_path_linux = isolate_path
+
+		if SLASH[PLAT_LINUX] in isolate_path:
+			isolate_path_win = isolate_path.replace(SLASH[PLAT_LINUX], SLASH[PLAT_WINDOWS])
+		if SLASH[PLAT_WINDOWS] in isolate_path:
+			isolate_path_linux = isolate_path.replace(SLASH[PLAT_WINDOWS], SLASH[PLAT_LINUX])
+
 		__isolate_libs = {
 			PLAT_WINDOWS: [
 				"mingw32", "SDL2main", "SDL2",
@@ -111,47 +112,50 @@ class IpmConfig:
 
 		__isolate_includes = {
 			PLAT_WINDOWS: [
-				f"{isolate_path}{self.slash}src{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}include{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}"
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}src{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}GLEW{SLASH[PLAT_WINDOWS]}include{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}SDL2_64bit{SLASH[PLAT_WINDOWS]}include{SLASH[PLAT_WINDOWS]}"
 			],
 			PLAT_LINUX    : [
-				f"{isolate_path}{self.slash}src{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}include{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}include{self.slash}"
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}src{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}GLEW{SLASH[PLAT_LINUX]}include{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}SDL2_64bit{SLASH[PLAT_LINUX]}include{SLASH[PLAT_LINUX]}"
 			]
 		}
 
 		__isolate_lib_path = {
 			PLAT_WINDOWS: [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}win{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}win{self.slash}",
-				f"{isolate_path}{self.slash}bin{self.slash}win{self.slash}"
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}GLEW{SLASH[PLAT_WINDOWS]}lib{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}SDL2_64bit{SLASH[PLAT_WINDOWS]}lib{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}bin{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}"
 			],
 			PLAT_LINUX    : [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}lib{self.slash}linux{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}lib{self.slash}linux{self.slash}",
-				f"{isolate_path}{self.slash}bin{self.slash}linux{self.slash}"
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}GLEW{SLASH[PLAT_LINUX]}lib{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}SDL2_64bit{SLASH[PLAT_LINUX]}lib{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}bin{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}"
 			]
 		}
 
 		__isolate_vendor_dlls = {
 			PLAT_WINDOWS: [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}win{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}win{self.slash}",
-				f"{isolate_path}{self.slash}bin{self.slash}win{self.slash}"
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}GLEW{SLASH[PLAT_WINDOWS]}bin{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}vendor{SLASH[PLAT_WINDOWS]}SDL2_64bit{SLASH[PLAT_WINDOWS]}bin{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}",
+				f"{isolate_path_win}{SLASH[PLAT_WINDOWS]}bin{SLASH[PLAT_WINDOWS]}win{SLASH[PLAT_WINDOWS]}"
 			],
 			PLAT_LINUX  : [
-				f"{isolate_path}{self.slash}vendor{self.slash}GLEW{self.slash}bin{self.slash}linux{self.slash}",
-				f"{isolate_path}{self.slash}vendor{self.slash}SDL2_64bit{self.slash}bin{self.slash}linux{self.slash}",
-				f"{isolate_path}{self.slash}bin{self.slash}linux{self.slash}"
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}GLEW{SLASH[PLAT_LINUX]}bin{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}vendor{SLASH[PLAT_LINUX]}SDL2_64bit{SLASH[PLAT_LINUX]}bin{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}",
+				f"{isolate_path_linux}{SLASH[PLAT_LINUX]}bin{SLASH[PLAT_LINUX]}linux{SLASH[PLAT_LINUX]}"
 			]
 		}
 
 		def_config = {
 
 			"build_mode"  : "debug",
-			"isolate_path": isolate_path,
+			"isolate_path": {
+				PLAT_WINDOWS: isolate_path_win,
+				PLAT_LINUX: isolate_path_linux
+			},
 			"cc": "gcc",
 
 			"out":{
@@ -188,7 +192,7 @@ class IpmConfig:
 
 		}
 		print("[CMD]: Generating default config file.")
-		json.dump(def_config, open(project_path + self.slash + DEF_CONFIG_NAME, "w"), indent=2)
+		json.dump(def_config, open(project_path + SLASH[self.platform] + DEF_CONFIG_NAME, "w"), indent=2)
 
 
 

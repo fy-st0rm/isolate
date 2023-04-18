@@ -1,19 +1,19 @@
 #include "iso_entry.h"
 
-i32 iso_run(i32 argc, char** argv) {
+i32 iso_run(i32 argc, char** argv, iso_entry_def def) {
 	srand(time(NULL));
 
 	// Initialize the engine memory
 	iso_memory_init();
 
 	// Init
-	iso_app_def app_def = iso_init();
+	iso_app_def app_def = def.iso_init();
 
 	// Creating the app
 	iso_app* app = iso_app_new(app_def);
 
 	// App start
-	iso_start(app);
+	def.iso_start(app);
 
 	SDL_Event event;
 
@@ -74,7 +74,7 @@ i32 iso_run(i32 argc, char** argv) {
 	iso_scene_manager_reset(app->scene_manager);
 
 	// Exit of the app
-	iso_exit(app);
+	def.iso_exit(app);
 
 	// Cleaning app
 	iso_app_delete(app);

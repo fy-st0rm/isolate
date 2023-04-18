@@ -38,9 +38,9 @@ void testbed_new(iso_scene* scene) {
 			app->graphics,
 			(iso_graphics_shader_def) {
 				.name = "shader",
-				.v_src = "vert.glsl",
-				.f_src = "frag.glsl",
-				.source_type = ISO_GRAPHICS_SHADER_FROM_FILE
+				.v_src = vert_shader,
+				.f_src = frag_shader,
+				.source_type = ISO_GRAPHICS_SHADER_FROM_STR
 			}
 	);
 

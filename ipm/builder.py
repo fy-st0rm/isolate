@@ -34,7 +34,7 @@ class IpmBuilder:
 
 		# Building
 		files = " ".join(config.o_files)
-		out = config.out_dir + config.slash + config.out[config.platform]
+		out = config.out_dir + SLASH[config.platform] + config.out[config.platform]
 		build_cmd = f"{config.cc} {c_flags} -o {out} {files} {lib_path} {lib}"
 		self.exec(build_cmd)
 
