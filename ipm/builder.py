@@ -49,7 +49,13 @@ class IpmBuilder:
 			self.exec(f"copy {dll}*.dll {config.out_dir}")
 
 		# Cleaning
-		files = " ".join(config.o_files)
+		junk = []
+		for f in config.o_files:
+			if SLASH[PLAT_LINUX] in f:
+				f = f.replace(SLASH[PLAT_LINUX], SLASH[PLAT_WINDOWS])
+			junk.append(f)
+
+		files = " ".join(junk)
 		self.exec(f"erase {files}")
 
 	def __compile_linux(self, config):
@@ -60,6 +66,12 @@ class IpmBuilder:
 			self.exec(f"cp {dll}*.so {config.out_dir}")
 
 		# Cleaning
+		junk = []
+		for f in config.o_files:
+			if SLASH[PLAT_WINDOWS] in f:
+				f = f.replace(SLASH[PLAT_WINDOWS], SLASH[PLAT_LINUX])
+			junk.append(f)
+
 		files = " ".join(config.o_files)
 		self.exec(f"rm {files}")
 
