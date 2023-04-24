@@ -13,9 +13,14 @@
 		"src/iso_util/iso_memory.c",
 		"src/iso_util/iso_str.c",
 
+		"src/iso_math/iso_vec/iso_vec.c",
+		"src/iso_math/iso_mat/iso_mat.c",
+
 		"src/iso_window/iso_window.c",
 		"src/iso_graphics/iso_opengl_backend/iso_opengl_backend.c",
 		"src/iso_graphics/iso_graphics.c",
+
+		"src/iso_camera/iso_camera.c",
 
 		"src/iso_scene/iso_scene.c",
 		"src/iso_app/iso_app.c",

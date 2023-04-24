@@ -6,7 +6,7 @@
 #include "iso_util/iso_memory.h"
 #include "iso_util/iso_hash_map.h"
 #include "iso_window/iso_window.h"
-#include "iso_math.h"
+#include "iso_math/iso_math.h"
 #include "iso_graphics_types.h"
 
 
@@ -73,7 +73,7 @@ struct iso_graphics {
 	struct {
 		void (*init)         (iso_window* window);                   // Initializes graphics api
 		void (*update)       (iso_window* window);                   // Updates the window
-		void (*clear_window) (iso_window* window, iso_color color);  // Clears the window with specified color
+		void (*clear_window) (iso_window* window, iso_vec4 color);  // Clears the window with specified color
 		
 		// Construction
 		iso_graphics_vertex_buffer*   (*vertex_buffer_new)   (iso_graphics* graphics, iso_graphics_vertex_buffer_def def);    // Function to create vertex buffer

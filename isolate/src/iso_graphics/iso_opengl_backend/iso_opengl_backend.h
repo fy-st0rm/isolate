@@ -24,7 +24,7 @@ ISO_API_INTERNAL void iso_gl_update(iso_window* window);
  * @param color  = Color of the background
  */
 
-ISO_API_INTERNAL void iso_gl_clear_window(iso_window* window, iso_color color);
+ISO_API_INTERNAL void iso_gl_clear_window(iso_window* window, iso_vec4 color);
 
 
 

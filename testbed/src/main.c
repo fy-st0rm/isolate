@@ -1,12 +1,11 @@
-#include "iso_util/iso_str.h"
 #include "isolate.h"
 #include "testbed.h"
 
 iso_app_def iso_init() {
 	iso_window_def win_def = {
 		.title = "Testbed",
-		.width = 800,
-		.height = 600
+		.width = WIDTH,
+		.height = HEIGHT 
 	};
 
 	iso_graphics_def grap_def = {

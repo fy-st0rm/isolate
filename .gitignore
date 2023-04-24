@@ -1,4 +1,5 @@
 .cache/
+.vscode/
 
 ipm/__pycache__/
 
