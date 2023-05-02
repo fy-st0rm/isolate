@@ -448,7 +448,7 @@ void iso_gl_uniform_set(iso_graphics* graphics, iso_graphics_uniform_def def) {
 			GLCall(glUniform4fv(u_loc, 1, (iso_vec4*) def.data));
 			break;
 		case ISO_GRAPHICS_UNIFORM_MAT4:
-			GLCall(glUniformMatrix4fv(u_loc, 1, GL_FALSE, &((iso_mat4*) def.data)->m[0][0]));
+			GLCall(glUniformMatrix4fv(u_loc, 1, GL_TRUE, &((iso_mat4*) def.data)->m[0][0]));
 			break;
 		case ISO_GRAPHICS_UNIFORM_SAMPLER2D: {
 			iso_graphics_sampler_def* sampler = def.data;
@@ -733,6 +733,7 @@ iso_graphics_render_pipeline* iso_gl_render_pipeline_new(iso_graphics* graphics,
 	iso_log_info("Setting up vertex attribute layouts...\n");
 
 	// Generating layout
+	// TODO: Improve this because "glVertexAttribPointer" doesnt support integers as types use "glVertexAttribIPointer"
 	size_t offset = 0;
 	for (i32 i = 0; i < def.amt; i++) {
 		iso_graphics_vertex_layout_def layout = def.layout[i];

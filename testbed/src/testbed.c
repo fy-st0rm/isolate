@@ -1,14 +1,43 @@
 #include "testbed.h"
+#include "iso_math/iso_mat/iso_mat.h"
 
 f32 vertices[] = {
-	 0.0f,  0.5f, -3.0f,
-	-0.5f, -0.5f, -3.0f,
-	 0.5f, -0.5f, -3.0f
+	 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f, 0.5f, 1.0f, 0.5f, 1.0f, 1.0f, 1.0f
+};
+
+i32 indices[] = {
+	0, 1, 2,
+	1, 3, 4,
+	5, 6, 3,
+	7, 3, 6,
+	2, 4, 7,
+	0, 7, 6,
+	0, 5, 1,
+	1, 5, 3,
+	5, 0, 6,
+	7, 4, 3,
+	2, 1, 4,
+	0, 2, 7
+};
+
+/*
+f32 vertices[] = {
+	 0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+	 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
 };
 
 i32 indices[] = {
 	0, 1, 2
 };
+*/
 
 void testbed_new(iso_scene* scene) {
 	testbed* tb = (testbed*) scene->scene_data;
@@ -38,9 +67,41 @@ void testbed_new(iso_scene* scene) {
 		app->graphics,
 		(iso_graphics_shader_def) {
 			.name = "shader",
-			.v_src = vert_shader,
-			.f_src = frag_shader,
-			.source_type = ISO_GRAPHICS_SHADER_FROM_STR
+			.v_src = "../../asset/vert.glsl",
+			.f_src = "../../asset/frag.glsl",
+			.source_type = ISO_GRAPHICS_SHADER_FROM_FILE
+		}
+	);
+
+	tb->texture = app->graphics->api.texture_new(
+		app->graphics,
+		(iso_graphics_texture_def) {
+			.name = "tex",
+			.type = ISO_GRAPHICS_TEXTURE_FROM_FILE,
+			.param = {
+				.file_param = (iso_graphics_texture_from_file_param) {
+					.file_path = "../../asset/bricks.jpg"
+				}
+			},
+			.filter = {
+				.min = ISO_GRAPHICS_FILTER_LINEAR,
+				.mag = ISO_GRAPHICS_FILTER_LINEAR
+			}
+		}
+	);
+
+	int samplers[] = { tb->texture->id };
+	app->graphics->api.shader_bind(app->graphics, "shader");
+	app->graphics->api.uniform_set(
+		app->graphics,
+		(iso_graphics_uniform_def) {
+			.name = "tex",
+			.shader = tb->shader,
+			.type = ISO_GRAPHICS_UNIFORM_SAMPLER2D,
+			.data = &(iso_graphics_sampler_def) {
+				.count = 1,
+				.samplers = samplers
+			}
 		}
 	);
 
@@ -53,9 +114,11 @@ void testbed_new(iso_scene* scene) {
 				.ibo = tb->ibo,
 				.shader = tb->shader
 			},
-			.amt = 1,
+			.amt = 3,
 			.layout = (iso_graphics_vertex_layout_def[]) {
-				{ .amt = 3, .type = ISO_GRAPHICS_FLOAT }
+				{ .amt = 3, .type = ISO_GRAPHICS_FLOAT },
+				{ .amt = 4, .type = ISO_GRAPHICS_FLOAT },
+				{ .amt = 2, .type = ISO_GRAPHICS_FLOAT }
 			}
 		}
 	);
@@ -90,7 +153,7 @@ void testbed_new(iso_scene* scene) {
 				.axes  = (iso_vec3) { 0, 0, 0 }
 			},
 			.viewport = (iso_camera_persp_viewport_def) {
-				.aspect_ratio = WIDTH / HEIGHT,
+				.aspect_ratio = (f32) WIDTH / (f32) HEIGHT,
 				.near = 1.0f,
 				.far = 1000.0f,
 				.fov = 45.0f
@@ -104,6 +167,9 @@ void testbed_new(iso_scene* scene) {
 	tb->cam = tb->p_cam;
 #endif
 
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glCullFace(GL_BACK);
 }
 
 void testbed_delete(iso_scene* scene) {
@@ -112,6 +178,7 @@ void testbed_delete(iso_scene* scene) {
 	app->graphics->api.vertex_buffer_delete(app->graphics, "vbo");
 	app->graphics->api.index_buffer_delete(app->graphics, "ibo");
 	app->graphics->api.shader_delete(app->graphics, "shader");
+	app->graphics->api.texture_delete(app->graphics, "tex");
 	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
 
 	iso_ortho_camera_delete(app->camera_manager, "o_cam");
@@ -125,6 +192,10 @@ void testbed_on_entry(iso_scene* scene) {
 
 void testbed_on_exit(iso_scene* scene) {
 }
+
+static f32 z_pos = 3.0f;
+static f32 ang = 0.0f;
+static iso_vec3 camera_pos = { 0.0f, 0.0f, -1.0f };
 
 void testbed_on_update(iso_scene* scene, f32 dt) {
 	testbed* tb = scene->scene_data;
@@ -140,17 +211,54 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	iso_persp_camera_update(app->camera_manager, "p_cam");
 #endif
 
+
+	// Projection matrix
+	f32 aspect_ratio = (f32) WIDTH / (f32) HEIGHT;
+	f32 fov = 45.0f;
+	f32 near = 1.0f;
+	f32 far = 1000.0f;
+	iso_mat4 proj = iso_persp_projection(aspect_ratio, fov, near, far);
+
+	// Model matrix
+	ang += 0.02f;
+	iso_mat4 model_rot = iso_mat4_mul(iso_rotate_z(ang), iso_rotate_x(ang));
+	iso_vec3 model_pos = { 0.0f, 0.0f, z_pos };
+	iso_mat4 model_translation = iso_mat4_translate(iso_mat4_identity(), model_pos);
+	iso_mat4 model = iso_mat4_mul(model_translation, model_rot);
+
+	// View matrix
+	iso_vec3 u = { 1.0f, 0.0f, 0.0f };
+	iso_vec3 v = { 0.0f, 1.0f, 0.0f };
+	iso_vec3 n = { 0.0f, 0.0f, 1.0f };
+
+	iso_mat4 camera_trans = iso_mat4_translate(iso_mat4_identity(), (iso_vec3) { -camera_pos.x, -camera_pos.y, -camera_pos.z });
+	iso_mat4 camera_rot = {
+		.m = {
+			{ u.x, u.y, u.z, 0.0f },
+			{ v.x, v.y, v.z, 0.0f },
+			{ n.x, n.y, n.z, 0.0f },
+			{ 0.0f, 0.0f, 0.0f, 1.0f }
+		}
+	};
+	iso_mat4 camera_mat = iso_mat4_mul(camera_rot, camera_trans);
+	iso_mat4 view = iso_mat4_mul(camera_mat, model);
+
+	// Model View Projection
+	iso_mat4 mvp = iso_mat4_mul(proj, view);
+
 	app->graphics->api.uniform_set(
 		app->graphics,
 		(iso_graphics_uniform_def) {
 			.name = "mvp",
 			.type = ISO_GRAPHICS_UNIFORM_MAT4,
 			.shader = tb->shader,
-			.data = &tb->cam->mvp
+			.data = &mvp
 		}
 	);
 
-	app->graphics->api.render_pipeline_end(app->graphics, "pip", 3);
+	app->graphics->api.texture_bind(app->graphics, "tex");
+
+	app->graphics->api.render_pipeline_end(app->graphics, "pip", sizeof(indices) / sizeof(indices[0]));
 }
 
 void testbed_on_event(iso_scene* scene, SDL_Event event, f32 dt) {
@@ -158,23 +266,19 @@ void testbed_on_event(iso_scene* scene, SDL_Event event, f32 dt) {
 	iso_app* app = tb->app;
 	f32 speed = 0.01f;
 
-	printf("POS: ");
-	iso_print_vec3(tb->cam->pos);
-
-
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
 			case SDLK_w:
-				tb->cam->pos.y += speed * dt;
+				camera_pos.y += speed * dt;
 				break;
 			case SDLK_a:
-				tb->cam->pos.x -= speed * dt;
+				camera_pos.x -= speed * dt;
 				break;
 			case SDLK_s:
-				tb->cam->pos.y -= speed * dt;
+				camera_pos.y -= speed * dt;
 				break;
 			case SDLK_d:
-				tb->cam->pos.x += speed * dt;
+				camera_pos.x += speed * dt;
 				break;
 		}
 	}

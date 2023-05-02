@@ -76,10 +76,10 @@ iso_mat4 iso_mat4_inverse(iso_mat4 in) {
 iso_mat4 iso_mat4_translate(iso_mat4 m, iso_vec3 v) {
 	return (iso_mat4) {
 		.m = {
-			{      1.0f, m.m[0][1], m.m[0][2],  m.m[0][3] },
-			{ m.m[1][0],      1.0f, m.m[1][2],  m.m[1][3] },
-			{ m.m[2][0], m.m[2][1],      1.0f,  m.m[2][3] },
-			{       v.x,       v.y,       v.z,       1.0f }
+			{      1.0f, m.m[0][1], m.m[0][2],  v.x },
+			{ m.m[1][0],      1.0f, m.m[1][2],  v.y },
+			{ m.m[2][0], m.m[2][1],      1.0f,  v.z },
+			{ m.m[3][0], m.m[3][1], m.m[3][2], 1.0f },
 		}
 	};
 }

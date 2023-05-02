@@ -7,21 +7,6 @@
 // TODO: Take pointer for all the functions
 // TODO: Add slice and replace mechanisms
 
-/*
- * @brief Iso string struct
- * @mem c_str = Data of the string
- * @mem len   = Length of the string
- * @mem cap   = Capacity of the string
- */
-
-typedef struct {
-	char* c_str;
-	u32 len;
-	u32 cap;
-} __iso_str_def;
-//typedef __iso_str_def* iso_str;
-
-
 typedef char* iso_str;
 
 

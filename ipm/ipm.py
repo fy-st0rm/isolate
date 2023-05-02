@@ -60,10 +60,13 @@ for cmd in sys.argv:
 		log_sucess("Build completed")
 
 		log_info("Executing the program...")
+
 		# Executing the program
 		args = sys.argv[idx+1:]
 		exec_path = config_file.out_dir + SLASH[config_file.platform] + config_file.out[config_file.platform]
 		process = subprocess.Popen([exec_path] + args, cwd=config_file.out_dir, stdout=sys.stdout, stderr=sys.stderr)
+		process.wait()
+
 		return_code = process.returncode
 
 		log_info(f"Program exited: [retured {return_code}]")

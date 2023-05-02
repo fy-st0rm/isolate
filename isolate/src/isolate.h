@@ -19,10 +19,10 @@
 //#include "iso_ecs/iso_ecs.h"
 
 /* Graphics */
-//#include "iso_graphics/iso_graphics.h"
+#include "iso_graphics/iso_graphics.h"
 
 /* Window */
-//#include "iso_window/iso_window.h"
+#include "iso_window/iso_window.h"
 
 /* Entry point */
 #include "iso_entry/iso_entry.h"

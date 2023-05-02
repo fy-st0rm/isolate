@@ -41,7 +41,7 @@ static size_t iso_graphics_get_type_size(iso_graphics_data_type type) {
 		case ISO_GRAPHICS_FLOAT        : sz = sizeof(f32); break;
 		case ISO_GRAPHICS_INT          : sz = sizeof(i32); break;
 		case ISO_GRAPHICS_UNSIGNED_INT : sz = sizeof(u32); break;
-		case ISO_GRAPHICS_UNSIGNED_BYTE: sz = sizeof(u32); break;
+		case ISO_GRAPHICS_UNSIGNED_BYTE: sz = sizeof(u8); break;
 		default: iso_assert(0, "Unknown ISO_GRAPHICS_DATA_TYPE: %d\n", type); break;
 	}
 	return sz;

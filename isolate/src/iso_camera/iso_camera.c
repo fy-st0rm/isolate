@@ -1,10 +1,10 @@
 #include "iso_camera.h"
 
 iso_camera_manager* iso_camera_manager_new() {
-    iso_log_info("Constructing iso_camera_manager.\n");
-    iso_camera_manager* cm = iso_alloc(sizeof(iso_camera_manager));
-    iso_log_sucess("Created iso_camera_manager.\n");
-    return cm;
+	iso_log_info("Constructing iso_camera_manager.\n");
+	iso_camera_manager* cm = iso_alloc(sizeof(iso_camera_manager));
+	iso_log_sucess("Created iso_camera_manager.\n");
+	return cm;
 }
 
 void iso_camera_manager_delete(iso_camera_manager* cm) {
@@ -19,7 +19,6 @@ iso_camera* iso_camera_manager_get(iso_camera_manager* man, iso_str name) {
 	iso_hmap_get(man->cameras, name, cam);
 	return cam;
 }
-
 
 iso_camera* iso_ortho_camera_new(iso_camera_manager* cm, iso_ortho_camera_def def) {
 	iso_log_info("Constructing iso_ortho_camera\n");
