@@ -17,8 +17,22 @@
 		"src/iso_math/iso_mat/iso_mat.c",
 
 		"src/iso_window/iso_window.c",
+
 		"src/iso_graphics/iso_opengl_backend/iso_opengl_backend.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_util.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_vertex_buffer.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_index_buffer.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_shader.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_texture.c",
+		"src/iso_graphics/iso_opengl_backend/iso_gl_render_pipeline.c",
+		
 		"src/iso_graphics/iso_graphics.c",
+		"src/iso_graphics/iso_graphics_core/iso_graphics_util.c",
+		"src/iso_graphics/iso_graphics_core/iso_vertex_buffer.c",
+		"src/iso_graphics/iso_graphics_core/iso_index_buffer.c",
+		"src/iso_graphics/iso_graphics_core/iso_shader.c",
+		"src/iso_graphics/iso_graphics_core/iso_texture.c",
+		"src/iso_graphics/iso_graphics_core/iso_render_pipeline.c",
 
 		"src/iso_camera/iso_camera.c",
 

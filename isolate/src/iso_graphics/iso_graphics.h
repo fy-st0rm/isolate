@@ -5,14 +5,16 @@
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_memory.h"
 #include "iso_util/iso_hash_map.h"
+
 #include "iso_window/iso_window.h"
 #include "iso_math/iso_math.h"
-#include "iso_graphics_types.h"
 
+#include "iso_graphics_core/iso_vertex_buffer.h"
+#include "iso_graphics_core/iso_index_buffer.h"
+#include "iso_graphics_core/iso_shader.h"
+#include "iso_graphics_core/iso_texture.h"
+#include "iso_graphics_core/iso_render_pipeline.h"
 
-/*====================
- * Graphics api
- *==================*/
 
 /*
  * @brief Enum that holds supported graphics api
@@ -63,65 +65,48 @@ typedef struct iso_graphics iso_graphics;
 struct iso_graphics {
 
 	// Internal memory
-	iso_hmap_def(char*, iso_graphics_vertex_buffer*,   ISO_GRAPHICS_MEM_SIZE) vertex_buffers;
-	iso_hmap_def(char*, iso_graphics_index_buffer*,    ISO_GRAPHICS_MEM_SIZE) index_buffers;
-	iso_hmap_def(char*, iso_graphics_shader*,          ISO_GRAPHICS_MEM_SIZE) shaders;
-	iso_hmap_def(char*, iso_graphics_render_pipeline*, ISO_GRAPHICS_MEM_SIZE) render_pipelines;
-	iso_hmap_def(char*, iso_graphics_texture*,         ISO_GRAPHICS_MEM_SIZE) textures;
-	iso_hmap_def(char*, iso_graphics_frame_buffer*,    ISO_GRAPHICS_MEM_SIZE) frame_buffers;
+	iso_hmap_def(iso_str, void*, ISO_GRAPHICS_MEM_SIZE) memory;
 
 	struct {
-		void (*init)         (iso_window* window);                   // Initializes graphics api
-		void (*update)       (iso_window* window);                   // Updates the window
+		void (*init)         (iso_window* window);                  // Initializes graphics api
+		void (*update)       (iso_window* window);                  // Updates the window
 		void (*clear_window) (iso_window* window, iso_vec4 color);  // Clears the window with specified color
-		
+
 		// Construction
-		iso_graphics_vertex_buffer*   (*vertex_buffer_new)   (iso_graphics* graphics, iso_graphics_vertex_buffer_def def);    // Function to create vertex buffer
-		iso_graphics_index_buffer*    (*index_buffer_new)    (iso_graphics* graphics, iso_graphics_index_buffer_def  def);    // Function to create index buffer
-		iso_graphics_shader*          (*shader_new)          (iso_graphics* graphics, iso_graphics_shader_def def);           // Function to create shader
-		iso_graphics_render_pipeline* (*render_pipeline_new) (iso_graphics* graphics, iso_graphics_render_pipeline_def def);  // Function to create render pipeline
-		iso_graphics_texture*         (*texture_new)         (iso_graphics* graphics, iso_graphics_texture_def def);          // Function to create texture
-		iso_graphics_frame_buffer*    (*frame_buffer_new)    (iso_graphics* graphics, iso_graphics_frame_buffer_def def);     // Function to create frame buffer
+		iso_vertex_buffer*   (*vertex_buffer_new)     (iso_graphics* graphics, iso_vertex_buffer_def def);       // Function to create vertex buffer
+		iso_index_buffer*    (*index_buffer_new)      (iso_graphics* graphics, iso_index_buffer_def  def);       // Function to create index buffer
+		iso_shader*          (*shader_new)            (iso_graphics* graphics, iso_shader_def def);              // Function to create shader
+		iso_texture*         (*texture_new_from_file) (iso_graphics* graphics, iso_texture_from_file_def def);   // Function to create texture from file
+		iso_texture*         (*texture_new_from_data) (iso_graphics* graphics, iso_texture_from_data_def def);   // Function to create texture from data
+		iso_render_pipeline* (*render_pipeline_new)   (iso_graphics* graphics, iso_render_pipeline_def def);     // Function to create render pipeline
 
 		// Updates
-		void (*vertex_buffer_update)  (iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def);    // Function to update the vertex buffer data
-		void (*index_buffer_update)   (iso_graphics* graphics, char* name, iso_graphics_buffer_update_def def);    // Function to update the index  buffer data
-		void (*uniform_set)           (iso_graphics* graphics, iso_graphics_uniform_def def);                      // Function to set the uniform
-		void (*render_pipeline_begin) (iso_graphics* graphics, char* name);                                        // Function to bind all the buffers to prepare for rendering
-		void (*render_pipeline_end)   (iso_graphics* graphics, char* name, i32 indices_cnt);                       // Function to do a draw call for render pipeline
-		void (*texture_update)        (iso_graphics* graphics, char* name, iso_graphics_texture_update_def def);   // Function to update the texture data
+		void (*vertex_buffer_update)  (iso_graphics* graphics, iso_vertex_buffer* vbo, iso_buffer_update_def def); // Function to update the vertex buffer data
+		void (*index_buffer_update)   (iso_graphics* graphics, iso_index_buffer* ibo, iso_buffer_update_def def);  // Function to update the index  buffer data
+		void (*shader_uniform_set)    (iso_graphics* graphics, iso_shader* shader, iso_uniform_def def);           // Function to set the uniform
+		void (*texture_update)        (iso_graphics* graphics, iso_texture* texture, iso_texture_update_def def);  // Function to update the texture data
+		void (*render_pipeline_begin) (iso_graphics* graphics, iso_render_pipeline* pip);                          // Function to bind all the buffers to prepare for rendering
+		void (*render_pipeline_end)   (iso_graphics* graphics, iso_render_pipeline* pip, i32 indices_cnt);         // Function to do a draw call for render pipeline
 
 		// Binds
-		void (*vertex_buffer_bind) (iso_graphics* graphics, char* name);    // Function to bind vertex buffer
-		void (*index_buffer_bind)  (iso_graphics* graphics, char* name);    // Function to bind index buffer
-		void (*shader_bind)        (iso_graphics* graphics, char* name);    // Function to bind shader
-		void (*texture_bind)       (iso_graphics* graphics, char* name);    // Function to bind texture
-		void (*frame_buffer_bind)  (iso_graphics* graphics, char* name);    // Function to bind frame buffer
+		void (*vertex_buffer_bind) (iso_graphics* graphics, iso_vertex_buffer* vbo);    // Function to bind vertex buffer
+		void (*index_buffer_bind)  (iso_graphics* graphics, iso_index_buffer*  ibo);    // Function to bind index buffer
+		void (*shader_bind)        (iso_graphics* graphics, iso_shader*     shader);    // Function to bind shader
+		void (*texture_bind)       (iso_graphics* graphics, iso_texture*   texture);    // Function to bind texture
 		
 		// Unbinds
-		void (*vertex_buffer_unbind) (iso_graphics* graphics);                // Function to unbind vertex buffer
-		void (*index_buffer_unbind)  (iso_graphics* graphics);                // Function to unbind index buffer
-		void (*shader_unbind)        (iso_graphics* graphics);                // Function to unbind shader
-		void (*texture_unbind)       (iso_graphics* graphics, char* name);    // Function to unbind texture
-		void (*frame_buffer_unbind)  (iso_graphics* graphics, char* name);    // Function to unbind frame buffer
+		void (*vertex_buffer_unbind) (iso_graphics* graphics);                          // Function to unbind vertex buffer
+		void (*index_buffer_unbind)  (iso_graphics* graphics);                          // Function to unbind index buffer
+		void (*shader_unbind)        (iso_graphics* graphics);                          // Function to unbind shader
+		void (*texture_unbind)       (iso_graphics* graphics, iso_texture* texture);    // Function to unbind texture
 
 		// Destruction
-		void (*vertex_buffer_delete)   (iso_graphics* graphics, char* name);   // Function to delete vertex buffer
-		void (*index_buffer_delete)    (iso_graphics* graphics, char* name);   // Function to delete index buffer
-		void (*shader_delete)          (iso_graphics* graphics, char* name);   // Function to delete shader
-		void (*render_pipeline_delete) (iso_graphics* graphics, char* name);   // Function to delete render pipeline
-		void (*texture_delete)         (iso_graphics* graphics, char* name);   // Function to delete texture
-		void (*frame_buffer_delete)    (iso_graphics* graphics, char* name);   // Function to delete frame buffer
+		void (*vertex_buffer_delete)   (iso_graphics* graphics, iso_vertex_buffer* vbo);   // Function to delete vertex buffer
+		void (*index_buffer_delete)    (iso_graphics* graphics, iso_index_buffer* ibo);    // Function to delete index buffer
+		void (*shader_delete)          (iso_graphics* graphics, iso_shader* shader);       // Function to delete shader
+		void (*texture_delete)         (iso_graphics* graphics, iso_texture* texture);     // Function to delete texture
+		void (*render_pipeline_delete) (iso_graphics* graphics, iso_render_pipeline* pip); // Function to delete render pipeline
 	} api;
-
-	struct {
-		iso_graphics_vertex_buffer*   (*get_vertex_buffer)   (iso_graphics* graphics, char* name);
-		iso_graphics_index_buffer*    (*get_index_buffer)    (iso_graphics* graphics, char* name);
-		iso_graphics_shader*          (*get_shader)          (iso_graphics* graphics, char* name);
-		iso_graphics_render_pipeline* (*get_render_pipeline) (iso_graphics* graphics, char* name);
-		iso_graphics_texture*         (*get_texture)         (iso_graphics* graphics, char* name);
-		iso_graphics_frame_buffer*    (*get_frame_buffer)    (iso_graphics* graphics, char* name);
-	} memory;
 };
 
 
@@ -140,5 +125,13 @@ ISO_API iso_graphics* iso_graphics_new(iso_graphics_def graphics_def);
  */
 
 ISO_API void iso_graphics_delete(iso_graphics* graphics);
+
+/*
+ * @brief Function to get memory from the graphics
+ * @param 
+ */
+
+ISO_API void* iso_graphics_get(iso_graphics* graphics, iso_str name);
+
 
 #endif // __ISO_GRAPHICS_H__

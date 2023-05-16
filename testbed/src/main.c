@@ -43,12 +43,10 @@ void iso_exit(iso_app* app) {
 }
 
 i32 main(i32 argc, char** argv) {
-	return iso_run(
-		argc, argv,
-		(iso_entry_def) {
-			.iso_init = iso_init,
-			.iso_start = iso_start,
-			.iso_exit  = iso_exit
-		}
-	);
+	iso_entry_def entry = {
+		.iso_init  = iso_init,
+		.iso_start = iso_start,
+		.iso_exit  = iso_exit
+	};
+	return iso_run(argc, argv, entry);
 }

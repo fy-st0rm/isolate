@@ -4,6 +4,7 @@
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_memory.h"
 #include "iso_util/iso_str.h"
+#include "iso_math/iso_math.h"
 
 /*
  * @brief Enum that renamed SDL Window Flags to Iso Window Flags
@@ -74,5 +75,14 @@ ISO_API iso_window* iso_window_new(iso_window_def window_def);
  */
 
 ISO_API void iso_window_delete(iso_window* window);
+
+
+/*
+ * @brief Function to clear window
+ * @param window = Pointer to iso_window
+ * @param color  = Color of the background
+ */
+
+ISO_API void iso_window_clear(iso_window* window, iso_vec4 color);
 
 #endif // __ISO_WINDOW_H__

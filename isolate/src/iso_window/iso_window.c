@@ -1,5 +1,7 @@
 #include "iso_window.h"
+#include "iso_app/iso_app.h"
 
+extern iso_app* app;
 
 iso_window* iso_window_new(iso_window_def window_def) {
 	iso_log_info("Constructing iso_window...\n");
@@ -47,4 +49,8 @@ void iso_window_delete(iso_window* window) {
 	SDL_Quit();
 
 	iso_log_sucess("Deleted iso_window.\n");
+}
+
+void iso_window_clear(iso_window* window, iso_vec4 color) {
+	app->graphics->api.clear_window(window, color);
 }

@@ -10,15 +10,12 @@
 typedef struct {
 	iso_app* app;
 
-	iso_graphics_vertex_buffer* vbo;
-	iso_graphics_index_buffer*  ibo;
-	iso_graphics_shader* shader;
-	iso_graphics_texture* texture;
-	iso_graphics_render_pipeline* pip;
+	iso_vertex_buffer* vbo;
+	iso_index_buffer*  ibo;
+	iso_shader* shader;
+	iso_texture* tex;
+	iso_render_pipeline* pip;
 
-	iso_camera* o_cam;
-	iso_camera* p_cam;
-	iso_camera* cam;
 } testbed;
 
 void testbed_new(iso_scene* scene);

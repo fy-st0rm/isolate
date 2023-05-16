@@ -1,5 +1,7 @@
 #include "iso_entry.h"
 
+iso_app* app;
+
 i32 iso_run(i32 argc, char** argv, iso_entry_def def) {
 	srand(time(NULL));
 
@@ -10,7 +12,7 @@ i32 iso_run(i32 argc, char** argv, iso_entry_def def) {
 	iso_app_def app_def = def.iso_init();
 
 	// Creating the app
-	iso_app* app = iso_app_new(app_def);
+	app = iso_app_new(app_def);
 
 	// App start
 	def.iso_start(app);

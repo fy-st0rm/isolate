@@ -1,5 +1,4 @@
 #include "testbed.h"
-#include "iso_math/iso_mat/iso_mat.h"
 
 f32 vertices[] = {
 	 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
@@ -43,129 +42,82 @@ void testbed_new(iso_scene* scene) {
 	testbed* tb = (testbed*) scene->scene_data;
 	iso_app* app = tb->app;
 
-	tb->vbo = app->graphics->api.vertex_buffer_new(
-		app->graphics,
-		(iso_graphics_vertex_buffer_def) {
-			.name = "vbo",
-			.size = sizeof(vertices),
-			.data = vertices,
-			.usage = ISO_GRAPHICS_STATIC
-		}
-	);
+	// Vertex buffer
+	iso_vertex_buffer_def vbo_def = {
+		.name = "vbo",
+		.size = sizeof(vertices),
+		.data = vertices,
+		.usage = ISO_BUFFER_STATIC
+	};
+	tb->vbo = iso_vertex_buffer_new(vbo_def);
 
-	tb->ibo = app->graphics->api.index_buffer_new(
-		app->graphics,
-		(iso_graphics_index_buffer_def) {
-			.name = "ibo",
-			.size = sizeof(indices),
-			.data = indices,
-			.usage = ISO_GRAPHICS_STATIC
-		}
-	);
 
-	tb->shader = app->graphics->api.shader_new(
-		app->graphics,
-		(iso_graphics_shader_def) {
-			.name = "shader",
-			.v_src = "../../asset/vert.glsl",
-			.f_src = "../../asset/frag.glsl",
-			.source_type = ISO_GRAPHICS_SHADER_FROM_FILE
-		}
-	);
+	// Index buffer
+	iso_index_buffer_def ibo_def = {
+		.name = "ibo",
+		.size = sizeof(indices),
+		.data = indices,
+		.usage = ISO_BUFFER_STATIC
+	};
+	tb->ibo = iso_index_buffer_new(ibo_def);
 
-	tb->texture = app->graphics->api.texture_new(
-		app->graphics,
-		(iso_graphics_texture_def) {
-			.name = "tex",
-			.type = ISO_GRAPHICS_TEXTURE_FROM_FILE,
-			.param = {
-				.file_param = (iso_graphics_texture_from_file_param) {
-					.file_path = "../../asset/bricks.jpg"
-				}
-			},
-			.filter = {
-				.min = ISO_GRAPHICS_FILTER_LINEAR,
-				.mag = ISO_GRAPHICS_FILTER_LINEAR
-			}
-		}
-	);
 
-	int samplers[] = { tb->texture->id };
-	app->graphics->api.shader_bind(app->graphics, "shader");
-	app->graphics->api.uniform_set(
-		app->graphics,
-		(iso_graphics_uniform_def) {
-			.name = "tex",
-			.shader = tb->shader,
-			.type = ISO_GRAPHICS_UNIFORM_SAMPLER2D,
-			.data = &(iso_graphics_sampler_def) {
-				.count = 1,
-				.samplers = samplers
-			}
-		}
-	);
+	// Shader
+	iso_shader_def shader_def = {
+		.name = "shader",
+		.v_src = "../../asset/vert.glsl",
+		.f_src = "../../asset/frag.glsl",
+		.load_type = ISO_SHADER_FROM_FILE
+	};
+	tb->shader = iso_shader_new(shader_def);
 
-	tb->pip = app->graphics->api.render_pipeline_new(
-		app->graphics,
-		(iso_graphics_render_pipeline_def) {
-			.name = "pip",
-			.buffers = {
-				.vbo = tb->vbo,
-				.ibo = tb->ibo,
-				.shader = tb->shader
-			},
-			.amt = 3,
-			.layout = (iso_graphics_vertex_layout_def[]) {
-				{ .amt = 3, .type = ISO_GRAPHICS_FLOAT },
-				{ .amt = 4, .type = ISO_GRAPHICS_FLOAT },
-				{ .amt = 2, .type = ISO_GRAPHICS_FLOAT }
-			}
-		}
-	);
 
-	tb->o_cam = iso_ortho_camera_new(
-		app->camera_manager,
-		(iso_ortho_camera_def) {
-			.name = "o_cam",
-			.pos = (iso_vec3) { 0, 0, 0 },
-			.rot = (iso_rotation) {
-				.angle = 0.0f,
-				.axes  = { 0, 0, 0 }
-			},
-			.viewport = (iso_camera_ortho_viewport_def) {
-				.left = -1.0f,
-				.right = 1.0f,
-				.bottom = -1.0f,
-				.top = 1.0f,
-				.near = 0.0f,
-				.far = 1000.0f
-			}
+	// Texture
+	iso_texture_from_file_def tex_def = {
+		.name = "tex",
+		.file_path = "../../asset/bricks.jpg",
+		.filter = {
+			.min = ISO_TEXTURE_FILTER_LINEAR,
+			.mag = ISO_TEXTURE_FILTER_LINEAR
 		}
-	);
+	};
+	tb->tex = iso_texture_new_from_file(tex_def);
 
-	tb->p_cam = iso_persp_camera_new(
-		app->camera_manager,
-		(iso_persp_camera_def) {
-			.name = "p_cam",
-			.pos = (iso_vec3) { 0, 0, -1 },
-			.rot = (iso_rotation) {
-				.angle = 0.0f,
-				.axes  = (iso_vec3) { 0, 0, 0 }
-			},
-			.viewport = (iso_camera_persp_viewport_def) {
-				.aspect_ratio = (f32) WIDTH / (f32) HEIGHT,
-				.near = 1.0f,
-				.far = 1000.0f,
-				.fov = 45.0f
-			}
+
+	// Loading texture sampler to shader
+	int samplers[] = { tb->tex->id };
+	iso_shader_bind(tb->shader);
+
+	iso_uniform_def uni_def = {
+		.name = "tex",
+		.type = ISO_UNIFORM_SAMPLER2D,
+		.data = &(iso_uniform_sampler_def) {
+			.count = 1,
+			.samplers = samplers
 		}
-	);
+	};
+	iso_shader_uniform_set(tb->shader, uni_def);
 
-#ifdef ORTHO
-	tb->cam = tb->o_cam;
-#else
-	tb->cam = tb->p_cam;
-#endif
+
+	// Render pipeline
+	iso_render_pipeline_def pip_def = {
+		.name = "pip",
+		.draw_type = ISO_TRIANGLES,
+
+		.buffers = {
+			.vbo = tb->vbo,
+			.ibo = tb->ibo,
+			.shader = tb->shader
+		},
+
+		.layout_cnt = 3,
+		.layout  = (iso_vertex_layout_def[]) {
+			{ .amt = 3, .type = ISO_FLOAT },
+			{ .amt = 4, .type = ISO_FLOAT },
+			{ .amt = 2, .type = ISO_FLOAT }
+		}
+	};
+	tb->pip = iso_render_pipeline_new(pip_def);
 
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW);
@@ -174,15 +126,14 @@ void testbed_new(iso_scene* scene) {
 
 void testbed_delete(iso_scene* scene) {
 	iso_app* app = ((testbed*) scene->scene_data)->app;
+	testbed* tb = scene->scene_data;
 
-	app->graphics->api.vertex_buffer_delete(app->graphics, "vbo");
-	app->graphics->api.index_buffer_delete(app->graphics, "ibo");
-	app->graphics->api.shader_delete(app->graphics, "shader");
-	app->graphics->api.texture_delete(app->graphics, "tex");
-	app->graphics->api.render_pipeline_delete(app->graphics, "pip");
-
-	iso_ortho_camera_delete(app->camera_manager, "o_cam");
-	iso_persp_camera_delete(app->camera_manager, "p_cam");
+	// Deleting buffers
+	iso_vertex_buffer_delete(tb->vbo);
+	iso_index_buffer_delete(tb->ibo);
+	iso_shader_delete(tb->shader);
+	iso_texture_delete(tb->tex);
+	iso_render_pipeline_delete(tb->pip);
 
 	iso_free(scene->scene_data);
 }
@@ -201,16 +152,10 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	testbed* tb = scene->scene_data;
 	iso_app* app = tb->app;
 
-	app->graphics->api.clear_window(app->window, (iso_vec4) { 0, 0, 0, 0 });
+	iso_window_clear(app->window, (iso_vec4) { 0, 0, 0, 0 });
 
-	app->graphics->api.render_pipeline_begin(app->graphics, "pip");
-
-#ifdef ORTHO
-	iso_ortho_camera_update(app->camera_manager, "o_cam");
-#else
-	iso_persp_camera_update(app->camera_manager, "p_cam");
-#endif
-
+	// Rendering
+	iso_render_pipeline_begin(tb->pip);
 
 	// Projection matrix
 	f32 aspect_ratio = (f32) WIDTH / (f32) HEIGHT;
@@ -246,19 +191,19 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	// Model View Projection
 	iso_mat4 mvp = iso_mat4_mul(proj, view);
 
-	app->graphics->api.uniform_set(
-		app->graphics,
-		(iso_graphics_uniform_def) {
-			.name = "mvp",
-			.type = ISO_GRAPHICS_UNIFORM_MAT4,
-			.shader = tb->shader,
-			.data = &mvp
-		}
-	);
+	// Sending mvp uniform
+	iso_uniform_def uni_def = {
+		.name = "mvp",
+		.type = ISO_UNIFORM_MAT4,
+		.data = &mvp
+	};
+	iso_shader_uniform_set(tb->shader, uni_def);
 
-	app->graphics->api.texture_bind(app->graphics, "tex");
+	// Binding texture
+	iso_texture_bind(tb->tex);
 
-	app->graphics->api.render_pipeline_end(app->graphics, "pip", sizeof(indices) / sizeof(indices[0]));
+	// Flushing draw call
+	iso_render_pipeline_end(tb->pip, sizeof(indices) / sizeof(indices[0]));
 }
 
 void testbed_on_event(iso_scene* scene, SDL_Event event, f32 dt) {

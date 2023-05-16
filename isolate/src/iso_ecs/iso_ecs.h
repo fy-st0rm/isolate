@@ -4,7 +4,7 @@
 #include "iso_util/iso_includes.h"
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_memory.h"
-#include "iso_math.h"
+#include "iso_math/iso_math.h"
 
 /*
  * Table structure

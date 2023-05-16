@@ -7,12 +7,9 @@
 [x] Rework the engine to compile to dll/so and rework in examples and some sytnax (hashmap, graphics)
 	[x] Add iso_str
 	[x] Add vector operators for math library
-
-# Argent
-[ ] Rework in opengl backend
-	[ ] Remove the name system
-	[ ] Abastraction
-	[ ] Proper functions instead of calling iso_graphics.api
+[X] Rework in opengl backend
+	[X] Abastraction
+	[X] Proper functions instead of calling iso_graphics.api
 
 # TODO
 [ ] Construct layer system.
