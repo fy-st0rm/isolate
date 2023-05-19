@@ -1,4 +1,5 @@
 #include "testbed.h"
+#include "controller.h"
 
 f32 vertices[] = {
 	 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
@@ -25,18 +26,6 @@ i32 indices[] = {
 	2, 1, 4,
 	0, 2, 7
 };
-
-/*
-f32 vertices[] = {
-	 0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
-};
-
-i32 indices[] = {
-	0, 1, 2
-};
-*/
 
 void testbed_new(iso_scene* scene) {
 	testbed* tb = (testbed*) scene->scene_data;
@@ -119,14 +108,17 @@ void testbed_new(iso_scene* scene) {
 	};
 	tb->pip = iso_render_pipeline_new(pip_def);
 
+	// Camera controller
+	tb->con = controller_new((iso_vec3) { 0.0f, 0.0f, 6.0f }, (iso_vec3) { 0.0f, 0.0f, -1.0f });
+
 	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CW);
+	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
 }
 
 void testbed_delete(iso_scene* scene) {
-	iso_app* app = ((testbed*) scene->scene_data)->app;
 	testbed* tb = scene->scene_data;
+	iso_app* app = tb->app;
 
 	// Deleting buffers
 	iso_vertex_buffer_delete(tb->vbo);
@@ -134,6 +126,8 @@ void testbed_delete(iso_scene* scene) {
 	iso_shader_delete(tb->shader);
 	iso_texture_delete(tb->tex);
 	iso_render_pipeline_delete(tb->pip);
+
+	controller_delete(tb->con);
 
 	iso_free(scene->scene_data);
 }
@@ -144,9 +138,7 @@ void testbed_on_entry(iso_scene* scene) {
 void testbed_on_exit(iso_scene* scene) {
 }
 
-static f32 z_pos = 3.0f;
 static f32 ang = 0.0f;
-static iso_vec3 camera_pos = { 0.0f, 0.0f, -1.0f };
 
 void testbed_on_update(iso_scene* scene, f32 dt) {
 	testbed* tb = scene->scene_data;
@@ -167,26 +159,14 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	// Model matrix
 	ang += 0.02f;
 	iso_mat4 model_rot = iso_mat4_mul(iso_rotate_z(ang), iso_rotate_x(ang));
-	iso_vec3 model_pos = { 0.0f, 0.0f, z_pos };
+	iso_vec3 model_pos = { 0.0f, 0.0f, 0.0f };
 	iso_mat4 model_translation = iso_mat4_translate(iso_mat4_identity(), model_pos);
 	iso_mat4 model = iso_mat4_mul(model_translation, model_rot);
 
 	// View matrix
-	iso_vec3 u = { 1.0f, 0.0f, 0.0f };
-	iso_vec3 v = { 0.0f, 1.0f, 0.0f };
-	iso_vec3 n = { 0.0f, 0.0f, 1.0f };
-
-	iso_mat4 camera_trans = iso_mat4_translate(iso_mat4_identity(), (iso_vec3) { -camera_pos.x, -camera_pos.y, -camera_pos.z });
-	iso_mat4 camera_rot = {
-		.m = {
-			{ u.x, u.y, u.z, 0.0f },
-			{ v.x, v.y, v.z, 0.0f },
-			{ n.x, n.y, n.z, 0.0f },
-			{ 0.0f, 0.0f, 0.0f, 1.0f }
-		}
-	};
-	iso_mat4 camera_mat = iso_mat4_mul(camera_rot, camera_trans);
-	iso_mat4 view = iso_mat4_mul(camera_mat, model);
+	controller_update(tb->con, app, dt);
+	iso_mat4 look_at = tb->con->look_at;
+	iso_mat4 view = iso_mat4_mul(look_at, model);
 
 	// Model View Projection
 	iso_mat4 mvp = iso_mat4_mul(proj, view);
@@ -209,22 +189,5 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 void testbed_on_event(iso_scene* scene, SDL_Event event, f32 dt) {
 	testbed* tb = scene->scene_data;
 	iso_app* app = tb->app;
-	f32 speed = 0.01f;
-
-	if (event.type == SDL_KEYDOWN) {
-		switch (event.key.keysym.sym) {
-			case SDLK_w:
-				camera_pos.y += speed * dt;
-				break;
-			case SDLK_a:
-				camera_pos.x -= speed * dt;
-				break;
-			case SDLK_s:
-				camera_pos.y -= speed * dt;
-				break;
-			case SDLK_d:
-				camera_pos.x += speed * dt;
-				break;
-		}
-	}
+	controller_event(tb->con, event, dt);
 }

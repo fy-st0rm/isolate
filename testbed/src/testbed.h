@@ -2,10 +2,9 @@
 #define __TESTBED_H__
 
 #include "isolate.h"
+#include "controller.h"
 
 //#define ORTHO
-#define WIDTH 800
-#define HEIGHT 600
 
 typedef struct {
 	iso_app* app;
@@ -15,6 +14,8 @@ typedef struct {
 	iso_shader* shader;
 	iso_texture* tex;
 	iso_render_pipeline* pip;
+
+	controller* con;
 
 } testbed;
 

@@ -12,6 +12,8 @@
 	[X] Proper functions instead of calling iso_graphics.api
 
 # TODO
+[ ] Rework in camera system. Its bs rn.
+[ ] Isolate filesystem
 [ ] Construct layer system.
 	(Ui Layer) - *Scenes*
 						 | Main Menu

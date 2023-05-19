@@ -11,7 +11,8 @@
 	},
 	"c_files": [
 		"src/main.c",
-		"src/testbed.c"
+		"src/testbed.c",
+		"src/controller.c"
 	],
 	"c_flags": {
 	  "windows": [
