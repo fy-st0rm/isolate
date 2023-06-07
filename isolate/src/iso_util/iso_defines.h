@@ -109,8 +109,10 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #ifdef _WIN32
 	#define ISO_API          __declspec(dllexport)
 	#define ISO_API_INTERNAL
-#else
+	#define ISO_PLAT_WIN32
+#elif defined(__linux__)
 	#define ISO_API          __attribute__((visibility("default")))
 	#define ISO_API_INTERNAL __attribute__((visibility("hidden")))
+	#define ISO_PLAT_LINUX
 #endif
 

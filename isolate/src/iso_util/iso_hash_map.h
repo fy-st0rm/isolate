@@ -31,7 +31,7 @@
  * @param size   = size of hash map
  */
 
-#define iso_hmap_def(k_type, v_type, size)             \
+#define iso_hmap(k_type, v_type, size)             \
 	struct {                                             \
 		__iso_hmap_entry_def(k_type, v_type)* data[size];  \
 		__iso_hmap_entry_def(k_type, v_type)** tmp_entry;  \

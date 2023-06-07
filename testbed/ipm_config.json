@@ -12,7 +12,8 @@
 	"c_files": [
 		"src/main.c",
 		"src/testbed.c",
-		"src/controller.c"
+		"src/controller.c",
+		"src/object.c"
 	],
 	"c_flags": {
 	  "windows": [

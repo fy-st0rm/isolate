@@ -6,8 +6,10 @@
 #include "iso_util/iso_defines.h"
 #include "iso_util/iso_log.h"
 #include "iso_util/iso_hash_map.h"
+#include "iso_util/iso_list.h"
 #include "iso_util/iso_str.h"
 #include "iso_util/iso_file.h"
+#include "iso_util/iso_filesystem.h"
 
 /* Scenes */
 #include "iso_scene/iso_scene.h"

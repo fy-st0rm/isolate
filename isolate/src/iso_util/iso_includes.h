@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <math.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 // Graphics library (SDL and OPENGL)
 #include <SDL2/SDL.h>

@@ -8,7 +8,9 @@ typedef enum {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 } direction;
 
 typedef struct {
@@ -24,7 +26,7 @@ typedef struct {
 	b8 mouse_enable;
 
 	// Keyboard
-	b8 movement[4];
+	b8 movement[6];
 } controller;
 
 controller* controller_new(iso_vec3 position, iso_vec3 dir);

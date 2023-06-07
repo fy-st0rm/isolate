@@ -1,54 +1,20 @@
 #include "testbed.h"
 #include "controller.h"
 
-f32 vertices[] = {
-	 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f, 0.5f, 1.0f, 0.5f, 1.0f, 1.0f, 1.0f
-};
-
-i32 indices[] = {
-	0, 1, 2,
-	1, 3, 4,
-	5, 6, 3,
-	7, 3, 6,
-	2, 4, 7,
-	0, 7, 6,
-	0, 5, 1,
-	1, 5, 3,
-	5, 0, 6,
-	7, 4, 3,
-	2, 1, 4,
-	0, 2, 7
-};
-
 void testbed_new(iso_scene* scene) {
 	testbed* tb = (testbed*) scene->scene_data;
 	iso_app* app = tb->app;
 
+	tb->cube = object_from_data(cube_v, cube_vn, cube_vt, cube_f, cube_f_cnt);
+
 	// Vertex buffer
 	iso_vertex_buffer_def vbo_def = {
 		.name = "vbo",
-		.size = sizeof(vertices),
-		.data = vertices,
+		.size = tb->cube->buff_size,
+		.data = tb->cube->vertices,
 		.usage = ISO_BUFFER_STATIC
 	};
 	tb->vbo = iso_vertex_buffer_new(vbo_def);
-
-
-	// Index buffer
-	iso_index_buffer_def ibo_def = {
-		.name = "ibo",
-		.size = sizeof(indices),
-		.data = indices,
-		.usage = ISO_BUFFER_STATIC
-	};
-	tb->ibo = iso_index_buffer_new(ibo_def);
 
 
 	// Shader
@@ -92,18 +58,19 @@ void testbed_new(iso_scene* scene) {
 	iso_render_pipeline_def pip_def = {
 		.name = "pip",
 		.draw_type = ISO_TRIANGLES,
+		.render_type = ISO_RENDER_USING_VBO,
 
 		.buffers = {
 			.vbo = tb->vbo,
-			.ibo = tb->ibo,
+			.ibo = NULL,
 			.shader = tb->shader
 		},
 
 		.layout_cnt = 3,
 		.layout  = (iso_vertex_layout_def[]) {
 			{ .amt = 3, .type = ISO_FLOAT },
-			{ .amt = 4, .type = ISO_FLOAT },
-			{ .amt = 2, .type = ISO_FLOAT }
+			{ .amt = 2, .type = ISO_FLOAT },
+			{ .amt = 3, .type = ISO_FLOAT }
 		}
 	};
 	tb->pip = iso_render_pipeline_new(pip_def);
@@ -122,12 +89,13 @@ void testbed_delete(iso_scene* scene) {
 
 	// Deleting buffers
 	iso_vertex_buffer_delete(tb->vbo);
-	iso_index_buffer_delete(tb->ibo);
 	iso_shader_delete(tb->shader);
 	iso_texture_delete(tb->tex);
 	iso_render_pipeline_delete(tb->pip);
 
 	controller_delete(tb->con);
+
+	object_delete(tb->cube);
 
 	iso_free(scene->scene_data);
 }
@@ -157,7 +125,7 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	iso_mat4 proj = iso_persp_projection(aspect_ratio, fov, near, far);
 
 	// Model matrix
-	ang += 0.02f;
+	//ang += 0.02f;
 	iso_mat4 model_rot = iso_mat4_mul(iso_rotate_z(ang), iso_rotate_x(ang));
 	iso_vec3 model_pos = { 0.0f, 0.0f, 0.0f };
 	iso_mat4 model_translation = iso_mat4_translate(iso_mat4_identity(), model_pos);
@@ -183,7 +151,7 @@ void testbed_on_update(iso_scene* scene, f32 dt) {
 	iso_texture_bind(tb->tex);
 
 	// Flushing draw call
-	iso_render_pipeline_end(tb->pip, sizeof(indices) / sizeof(indices[0]));
+	iso_render_pipeline_end(tb->pip, tb->cube->vertices_cnt);
 }
 
 void testbed_on_event(iso_scene* scene, SDL_Event event, f32 dt) {

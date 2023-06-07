@@ -65,7 +65,7 @@ typedef struct iso_graphics iso_graphics;
 struct iso_graphics {
 
 	// Internal memory
-	iso_hmap_def(iso_str, void*, ISO_GRAPHICS_MEM_SIZE) memory;
+	iso_hmap(iso_str, void*, ISO_GRAPHICS_MEM_SIZE) memory;
 
 	struct {
 		void (*init)         (iso_window* window);                  // Initializes graphics api

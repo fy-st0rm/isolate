@@ -52,7 +52,7 @@ typedef struct {
 
 #define ISO_SCENE_MANAGER_MEM_SZ 100
 typedef struct {
-	iso_hmap_def(iso_str, iso_scene*, ISO_SCENE_MANAGER_MEM_SZ) scenes;
+	iso_hmap(iso_str, iso_scene*, ISO_SCENE_MANAGER_MEM_SZ) scenes;
 	iso_str current_scene;
 } iso_scene_manager;
 

@@ -22,6 +22,16 @@ typedef enum {
 
 
 /*
+ * @brief Enum of different render type
+ */
+
+typedef enum {
+	ISO_RENDER_USING_VBO,
+	ISO_RENDER_USING_IBO
+} iso_render_type;
+
+
+/*
  * @brief Defination to define the vertex layout in GPU
  * @mem amt  = Amount of data for a single type
  * @mem type = Data type
@@ -47,6 +57,7 @@ typedef struct {
 typedef struct {
 	iso_str name;
 	iso_draw_type draw_type;
+	iso_render_type render_type;
 
 	struct {
 		iso_vertex_buffer* vbo;
@@ -74,6 +85,7 @@ typedef struct {
 	u32 id;
 	iso_str name;
 	iso_draw_type draw_type;
+	iso_render_type render_type;
 
 	struct {
 		iso_vertex_buffer* vbo;

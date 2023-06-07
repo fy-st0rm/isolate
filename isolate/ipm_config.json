@@ -12,6 +12,7 @@
 	"c_files": [
 		"src/iso_util/iso_memory.c",
 		"src/iso_util/iso_str.c",
+		"src/iso_util/iso_filesystem.c",
 
 		"src/iso_math/iso_vec/iso_vec.c",
 		"src/iso_math/iso_mat/iso_mat.c",

@@ -1,4 +1,5 @@
 #include "controller.h"
+#include "SDL2/SDL_keycode.h"
 #include "SDL2/SDL_mouse.h"
 #include "iso_math/iso_mat/iso_mat.h"
 
@@ -35,6 +36,12 @@ void controller_update(controller* con, iso_app* app, f32 dt) {
 	}
 	if (con->movement[RIGHT]) {
 		con->position = iso_vec3_add(con->position, iso_vec3_mul_scalar(con->right, SPEED * dt));
+	}
+	if (con->movement[UP]) {
+		con->position.y += SPEED * dt;
+	}
+	if (con->movement[DOWN]) {
+		con->position.y -= SPEED * dt;
 	}
 
 	iso_mat4 camera_mat = {
@@ -112,8 +119,11 @@ void controller_event(controller* con, SDL_Event event, f32 dt) {
 			case SDLK_d:
 				con->movement[RIGHT] = true;
 				break;
-			case SDLK_q:
-				con->position.y += SPEED * dt;
+			case SDLK_SPACE:
+				con->movement[UP] = true;
+				break;
+			case SDLK_LSHIFT:
+				con->movement[DOWN] = true;
 				break;
 			case SDLK_ESCAPE:
 				con->mouse_enable = con->mouse_enable ? false : true;
@@ -134,6 +144,12 @@ void controller_event(controller* con, SDL_Event event, f32 dt) {
 				break;
 			case SDLK_d:
 				con->movement[RIGHT] = false;
+				break;
+			case SDLK_SPACE:
+				con->movement[UP] = false;
+				break;
+			case SDLK_LSHIFT:
+				con->movement[DOWN] = false;
 				break;
 		}
 	}

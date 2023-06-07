@@ -4,18 +4,22 @@
 #include "isolate.h"
 #include "controller.h"
 
+#include "object.h"
+#include "cube.h"
+
 //#define ORTHO
 
 typedef struct {
 	iso_app* app;
 
 	iso_vertex_buffer* vbo;
-	iso_index_buffer*  ibo;
 	iso_shader* shader;
 	iso_texture* tex;
 	iso_render_pipeline* pip;
 
 	controller* con;
+
+	object* cube;
 
 } testbed;
 

@@ -2,7 +2,7 @@
 
 layout (location = 0) out vec4 color;
 
-in vec4 o_color;
+in vec3 o_normal;
 in vec2 o_tex_cord;
 
 uniform sampler2D tex;

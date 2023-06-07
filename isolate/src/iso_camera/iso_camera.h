@@ -35,7 +35,7 @@ typedef struct {
 
 #define ISO_CAMERA_MEM_SIZE 99
 typedef struct {
-	iso_hmap_def(char*, iso_camera*, ISO_CAMERA_MEM_SIZE) cameras;
+	iso_hmap(char*, iso_camera*, ISO_CAMERA_MEM_SIZE) cameras;
 } iso_camera_manager;
 
 
